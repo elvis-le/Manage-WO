@@ -1,7 +1,7 @@
 import pandas as pd
 import math as pymath
 
-from datetime import date
+from datetime import date, timedelta
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -17,135 +17,274 @@ def upload_dashboard(request):
         engine="openpyxl"
     )
 
+    df.columns = (
+        df.columns.astype(str)
+        .str.strip()
+    )
+
     print(df.columns.tolist())
 
-    df.columns = df.columns.str.strip()
-
-    df = df[
-        ~df["Hệ Thống"].isin([
-            "SPM",
-            "SPM_VTNET"
-        ])
-    ]
+    if "Hệ Thống" in df.columns:
+        df = df[
+            ~df["Hệ Thống"].isin([
+                "SPM",
+                "SPM_VTNET"
+            ])
+        ]
 
     rows = []
 
     for _, row in df.iterrows():
 
-        completed = pd.notna(
-            row["Thời Điểm FT Hoàn Thành"]
+        
+        
+        
+
+        wo_status = str(
+            row.get("Trạng Thái", "")
+        ).strip()
+
+        
+        
+        
+
+        ft_completed = pd.notna(
+            row.get(
+                "Thời Điểm FT Hoàn Thành"
+            )
+        )
+
+        
+        
+        
+
+        completed = (
+            wo_status in [
+                "Đóng",
+                "FT hoàn thành"
+            ]
+            or ft_completed
+        )
+
+        
+        
+        
+
+        pending = not completed
+
+        
+        
+        
+
+        overdue_day = (
+            int(row["Số Ngày Quá Hạn"])
+            if pd.notna(
+                row["Số Ngày Quá Hạn"]
+            )
+            else 0
         )
 
         overdue = (
-            pd.notna(
-                row["Số Ngày Quá Hạn"]
+            overdue_day > 0
+        )
+
+        
+        
+        
+
+        remain_hour = (
+            float(
+                row["Thời Gian Còn Lại (Giờ)"]
             )
-            and
-            row["Số Ngày Quá Hạn"] > 0
+            if pd.notna(
+                row["Thời Gian Còn Lại (Giờ)"]
+            )
+            else 0
         )
 
-        active_overdue = (
-                not completed
-                and overdue
+        
+        
+        
+
+        near_due = (
+            pending
+            and remain_hour > 0
+            and remain_hour <= 24
         )
 
-        status = "in_progress"
+        
+        
+        
 
         if completed:
             status = "completed"
-        elif active_overdue:
+
+        elif overdue:
             status = "overdue"
 
-        near_due = (
-                not completed
-                and pd.notna(row["Thời Gian Còn Lại (Giờ)"])
-                and row["Thời Gian Còn Lại (Giờ)"] <= 24
-                and row["Thời Gian Còn Lại (Giờ)"] > 0
-        )
+        else:
+            status = "in_progress"
+
+        
+        
+        
 
         completed_today = False
 
-        if completed:
-            completed_today = (
-                    row["Thời Điểm FT Hoàn Thành"].date()
-                    == date.today()
+        if (
+            completed
+            and pd.notna(
+                row.get(
+                    "Thời Điểm CD Đóng"
+                )
             )
+        ):
+
+            completed_today = (
+                row[
+                    "Thời Điểm CD Đóng"
+                ].date()
+                == date.today() - timedelta(days=1)
+            )
+
+        
+        
 
         on_time = False
 
         if (
-                completed
-                and
-                pd.notna(row["Thời Điểm Yêu Cầu Kết Thúc"])
+            ft_completed
+            and pd.notna(
+                row.get(
+                    "Thời Điểm Yêu Cầu Kết Thúc"
+                )
+            )
         ):
+
             on_time = (
-                    row["Thời Điểm FT Hoàn Thành"]
-                    <=
-                    row["Thời Điểm Yêu Cầu Kết Thúc"]
+                row[
+                    "Thời Điểm FT Hoàn Thành"
+                ]
+                <=
+                row[
+                    "Thời Điểm Yêu Cầu Kết Thúc"
+                ]
             )
 
+        
+        
+        
+
         rows.append({
+
             "province": (
-    str(row["Mã Tỉnh"])
-    if pd.notna(row["Mã Tỉnh"])
-    else ""
-),
+                str(row["Mã Tỉnh"])
+                if pd.notna(
+                    row["Mã Tỉnh"]
+                )
+                else ""
+            ),
 
             "priority":
-                row["Mức Độ Ưu Tiên"],
+                row.get(
+                    "Mức Độ Ưu Tiên"
+                ),
 
             "wo_group":
-                row["Nhóm WO"],
+                row.get(
+                    "Nhóm WO"
+                ),
 
             "coord_group":
-                row["Nhóm Điều Phối"],
+                row.get(
+                    "Nhóm Điều Phối"
+                ),
 
             "employee": (
-    str(row["Nhân Viên Thực Hiện"])
-    if pd.notna(row["Nhân Viên Thực Hiện"])
-    else ""
-),
+                str(
+                    row[
+                        "Nhân Viên Thực Hiện"
+                    ]
+                )
+                if pd.notna(
+                    row[
+                        "Nhân Viên Thực Hiện"
+                    ]
+                )
+                else ""
+            ),
 
-            "remain_hour": (
-    float(row["Thời Gian Còn Lại (Giờ)"])
-    if pd.notna(row["Thời Gian Còn Lại (Giờ)"])
-    else 0
-),
+            "penalty": (
+                float(row["Tiền Phạt Quá Hạn"])
+                if pd.notna(row["Tiền Phạt Quá Hạn"])
+                else 0
+            ),
 
-            "overdue_day": (
-    int(row["Số Ngày Quá Hạn"])
-    if pd.notna(row["Số Ngày Quá Hạn"])
-    else 0
-),
+            "wo_status":
+                wo_status,
+
+            "remain_hour":
+                remain_hour,
+
+            "overdue_day":
+                overdue_day,
+
+            "wo_id": str(row["Mã Công Việc"]),
 
             "created_time": (
-                row["Thời Điểm Tạo"].isoformat()
-                if pd.notna(row["Thời Điểm Tạo"])
+                row[
+                    "Thời Điểm Tạo"
+                ].isoformat()
+                if pd.notna(
+                    row[
+                        "Thời Điểm Tạo"
+                    ]
+                )
                 else None
             ),
 
-            "status": status,
-            "in_progress": (
-    status == "in_progress"
-),
+            "status":
+                status,
 
             "completed":
                 completed,
+
             "pending":
-                not completed
-            ,
+                pending,
 
             "overdue":
                 overdue,
-            "completed_today": completed_today,
-            "near_due": near_due,
-            "on_time": on_time,
+
+            "near_due":
+                near_due,
+
+            "completed_today":
+                completed_today,
+
+            "on_time":
+                on_time,
+
+            "ft_completed":
+                ft_completed,
         })
+
+    
     for row in rows:
+
         for key, value in row.items():
-            if isinstance(value, float):
-                if pymath.isnan(value):
-                    print("NAN FOUND:", key)
+
+            if (
+                isinstance(
+                    value,
+                    float
+                )
+                and pymath.isnan(value)
+            ):
+                print(
+                    "NAN FOUND:",
+                    key
+                )
+
     return Response({
         "rows": rows
     })

@@ -10,7 +10,9 @@ import {
     Tooltip,
     Legend,
     CartesianGrid,
+    LabelList,
 } from "recharts";
+
 
 import {
     FundProjectionScreenOutlined,
@@ -37,73 +39,87 @@ function ProvinceBarChart({rows}) {
 
     const chartData = useMemo(() => {
 
-        const provinceList =
-            selectedProvinces.length > 0
-                ? selectedProvinces
-                : provinces;
+    const provinceList =
+        selectedProvinces.length > 0
+            ? selectedProvinces
+            : provinces;
 
-        return provinceList.map(
-            province => {
+    return provinceList
+        .map(province => {
 
-                const provinceRows =
-                    rows.filter(
-                        x =>
-                            x.province ===
-                            province
-                    );
+            const provinceRows =
+                rows.filter(
+                    x =>
+                        x.province ===
+                        province
+                );
 
-                return {
+            const completed =
+                provinceRows.filter(
+                    x => x.completed
+                ).length;
 
-                    province,
+            const overdue =
+                provinceRows.filter(
+                    x => x.overdue &&
+                        !x.completed
+                ).length;
 
-                    completed:
-                    provinceRows.filter(
-                        x =>
-                            x.status ===
-                            "completed"
-                    ).length,
+            const processing =
+                provinceRows.filter(
+                    x =>
+                        x.pending &&
+                        !x.overdue
+                ).length;
 
-                    pending:
-                    provinceRows.filter(
-                        x =>
-                            x.status ===
-                            "in_progress"
-                    ).length,
+            return {
 
-                    overdue:
-                    provinceRows.filter(
-                        x =>
-                            x.status ===
-                            "overdue"
-                    ).length,
+                province,
 
-                    total:
+                completed,
+
+                processing,
+
+                overdue,
+
+                total:
                     provinceRows.length,
 
-                };
+                processingTotal:
+        overdue === 0
+            ? provinceRows.length
+            : null,
 
-            }
-        ).sort(
-            (a, b) => b.total - a.total
+    overdueTotal:
+        overdue > 0
+            ? provinceRows.length
+            : null,
+
+
+            };
+
+        })
+        .sort(
+            (a, b) =>
+                b.total - a.total
         );
 
-    }, [
-        rows,
-        provinces,
-        selectedProvinces,
-    ]);
+}, [
+    rows,
+    provinces,
+    selectedProvinces,
+]);
 
     return (
 
         <Card
             bordered={false}
             style={{
-                marginTop: 24,
+                marginTop: 0,
                 borderRadius: 18,
-                background: "#0f172a",
-                border: "1px solid #1e293b",
+                background: "#e1f4fa",
                 boxShadow:
-                    "0 12px 32px rgba(0,0,0,.35)",
+                    "0 12px 32px rgba(0,0,0,.15)",
             }}
         >
 
@@ -129,10 +145,7 @@ function ProvinceBarChart({rows}) {
                             width: 36,
                             height: 36,
                             borderRadius: 8,
-                            border:
-                                "1px solid #1e293b",
-                            background: "#020617",
-                            color: "#60a5fa",
+                            color: "#7cb3f2",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
@@ -144,12 +157,11 @@ function ProvinceBarChart({rows}) {
                     <div>
                         <div
                             style={{
-                                color: "#fff",
                                 fontSize: 22,
                                 fontWeight: 700,
                             }}
                         >
-                            Hiệu suất xử lý theo Tỉnh
+                            Tổng mức tồn khu vực
                         </div>
 
                         <div
@@ -158,7 +170,7 @@ function ProvinceBarChart({rows}) {
                                 fontSize: 13,
                             }}
                         >
-                            Sắp xếp theo thứ tự tổng sản lượng Work Order
+                            Sắp xếp thứ tự theo tổng Work Order
                         </div>
                     </div>
                 </div>
@@ -183,9 +195,9 @@ function ProvinceBarChart({rows}) {
                     }
                     maxTagCount="responsive"
                     style={{
-                        width: 320,
-        background: "#0f172a",
-        color: "#fff",
+                        width: 300,
+                        background: "#e1f4fa",
+                        border: "1px solid #18bdf0"
                     }}
                     popupMatchSelectWidth={false}
                 >
@@ -253,7 +265,6 @@ function ProvinceBarChart({rows}) {
                             background: "#111827",
                             border: "1px solid #1e293b",
                             borderRadius: 12,
-                            color: "#fff",
                         }}
                         labelStyle={{
                             color: "#fff",
@@ -268,7 +279,6 @@ function ProvinceBarChart({rows}) {
                         align="center"
                         iconType="circle"
                         wrapperStyle={{
-                            color: "#fff",
                             fontWeight: 600,
                             paddingBottom: 20,
                         }}
@@ -280,15 +290,39 @@ function ProvinceBarChart({rows}) {
                         name="Đã hoàn thành"
                         fill="#1fc48d"
                         radius={[4, 4, 0, 0]}
-                    />
+                    >
+                        <LabelList
+                            dataKey="completed"
+                            position="center"
+                            fill="#000000"
+                            fontSize={11}
+                            fontWeight={600}
+                        />
+                    </Bar>
 
                     <Bar
-                        dataKey="pending"
+                        dataKey="processing"
                         stackId="a"
                         name="Đang xử lý"
                         fill="#4285f4"
                         radius={[4, 4, 0, 0]}
-                    />
+                    >
+                        <LabelList
+                            dataKey="processing"
+                            position="center"
+                            fill="#000000"
+                            fontSize={11}
+                            fontWeight={600}
+                        />
+                        <LabelList
+    dataKey="processingTotal"
+    position="top"
+    fill="#000000"
+    fontSize={13}
+    fontWeight={700}
+/>
+                    </Bar>
+
 
                     <Bar
                         dataKey="overdue"
@@ -296,7 +330,22 @@ function ProvinceBarChart({rows}) {
                         name="Quá hạn trễ"
                         fill="#ff4d57"
                         radius={[4, 4, 0, 0]}
-                    />
+                    >
+                        <LabelList
+                            dataKey="overdue"
+                            position="center"
+                            fill="#000000"
+                            fontSize={11}
+                            fontWeight={600}
+                        />
+                        <LabelList
+        dataKey="total"
+        position="top"
+        fill="#000000"
+        fontSize={13}
+        fontWeight={700}
+    />
+                    </Bar>
 
                 </BarChart>
 

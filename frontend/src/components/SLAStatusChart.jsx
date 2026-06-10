@@ -1,108 +1,168 @@
-import { Card, Progress, Statistic, Row, Col, Tag } from "antd";
+import { Card, Statistic, Row, Col } from "antd";
+
 import {
   ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
+  Tooltip,
 } from "recharts";
 
 function SLAStatusChart({ rows }) {
-  const overdue = rows.filter(x => x.overdue).length;
 
-  const nearDue = rows.filter(x => x.near_due).length;
+  const totalWO = rows.length;
 
-  const onTime = rows.filter(
-    x => !x.overdue && !x.near_due
+const completedWO =
+    rows.filter(
+        x => x.completed
+    ).length;
+
+const pendingWO =
+    rows.filter(
+        x =>
+            x.pending &&
+            !x.overdue
+    ).length;
+
+const overdueUnder3WO =
+  rows.filter(
+    x =>
+      x.overdue &&
+      Number(x.overdue_day || 0) <= 5
   ).length;
 
-  const total = rows.length;
-
-  const slaPercent =
-    total > 0
-      ? ((onTime / total) * 100).toFixed(1)
-      : 0;
-
-  const overduePercent =
-    total > 0
-      ? ((overdue / total) * 100).toFixed(1)
-      : 0;
+const overdueOver3WO =
+  rows.filter(
+    x =>
+      x.overdue &&
+      Number(x.overdue_day || 0) > 5
+  ).length;
 
   const data = [
+
     {
-      name: "Đúng hạn",
-      value: onTime,
+      name: "Đã hoàn thành",
+      value: completedWO,
     },
+
     {
-      name: "Sắp quá hạn",
-      value: nearDue,
+      name: "Đang xử lý",
+      value: pendingWO,
     },
+
     {
-      name: "Quá hạn",
-      value: overdue,
+      name: "Trễ ≤ 3 ngày",
+      value: overdueUnder3WO,
     },
+
+    {
+      name: "Trễ > 3 ngày",
+      value: overdueOver3WO,
+    },
+
   ];
 
   const COLORS = [
-    "#21c77a",
-    "#f5a623",
-    "#ff4d4f",
+    "#22c55e",
+    "#3b82f6",
+    "#f59e0b",
+    "#ef4444",
   ];
 
+  const completedRate =
+    totalWO > 0
+      ? (
+          completedWO *
+          100 /
+          totalWO
+        ).toFixed(1)
+      : 0;
+
+  const overdueRate =
+    totalWO > 0
+      ? (
+          (overdueUnder3WO +
+            overdueOver3WO) *
+          100 /
+          totalWO
+        ).toFixed(1)
+      : 0;
+
   return (
+
     <Card
       bordered={false}
       style={{
-        background: "#0f172a",
+        marginTop: 24,
+        background: "#e1f4fa",
         borderRadius: 16,
-        color: "#fff",
+                boxShadow:
+                    "0 12px 32px rgba(0,0,0,.15)",
       }}
       bodyStyle={{
         padding: 24,
       }}
     >
+
       <div
         style={{
-          color: "#fff",
           fontSize: 18,
           fontWeight: 600,
           marginBottom: 20,
         }}
       >
-        📊 Giám sát trạng thái SLA
+        📊 Tổng quan Work Order
       </div>
 
       <Row gutter={[24, 24]}>
-        {/* LEFT */}
+
+        {/* CHART */}
+
         <Col xs={24} md={10}>
+
           <div
             style={{
               position: "relative",
               height: 320,
             }}
           >
+
             <ResponsiveContainer
               width="100%"
               height="100%"
             >
+
               <PieChart>
+
                 <Pie
                   data={data}
                   dataKey="value"
-                  innerRadius={85}
+                  innerRadius={80}
                   outerRadius={120}
-                  paddingAngle={3}
+                  paddingAngle={4}
                 >
-                  {data.map((item, idx) => (
-                    <Cell
-                      key={idx}
-                      fill={COLORS[idx]}
-                    />
-                  ))}
+
+                  {data.map(
+                    (_, index) => (
+
+                      <Cell
+                        key={index}
+                        fill={
+                          COLORS[index]
+                        }
+                      />
+
+                    )
+                  )}
+
                 </Pie>
+
+                <Tooltip />
+
               </PieChart>
+
             </ResponsiveContainer>
 
-            {/* Center Text */}
             <div
               style={{
                 position: "absolute",
@@ -113,84 +173,49 @@ function SLAStatusChart({ rows }) {
                 textAlign: "center",
               }}
             >
+
               <div
                 style={{
-                  color: "#94a3b8",
                   fontSize: 13,
+                  color: "#64748b",
                 }}
               >
-                SLA ĐẠT
+                TỔNG WO
               </div>
 
               <div
                 style={{
-                  color: "#fff",
                   fontSize: 38,
                   fontWeight: 700,
                 }}
               >
-                {slaPercent}%
+                {totalWO}
               </div>
 
-              {slaPercent < 95 && (
-                <Tag color="red">
-                  CẢNH BÁO
-                </Tag>
-              )}
             </div>
+
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 12,
-              flexWrap: "wrap",
-            }}
-          >
-            <Tag color="green">
-              Đúng hạn ({onTime})
-            </Tag>
-
-            <Tag color="gold">
-              Sắp quá hạn ({nearDue})
-            </Tag>
-
-            <Tag color="red">
-              Quá hạn ({overdue})
-            </Tag>
-          </div>
         </Col>
 
-        {/* RIGHT */}
+        {/* KPI */}
+
         <Col xs={24} md={14}>
+
           <Row gutter={[16, 16]}>
+
             <Col span={12}>
               <Card
                 bordered={false}
                 style={{
                   background:
-                    "#111827",
-                  color: "#fff",
+                    "#ebf8fc",
                 }}
               >
                 <Statistic
-  title={
-    <span
-      style={{
-        color: "#fff",
-        fontSize: 12,
-        fontWeight: 500,
-      }}
-    >
-      Tổng Work Order
-    </span>
-  }
-  value={total}
-  valueStyle={{
-    color: "#fff",
-  }}
-/>
+                  title="Tổng Work Order"
+                  value={totalWO}
+                />
               </Card>
             </Col>
 
@@ -199,27 +224,17 @@ function SLAStatusChart({ rows }) {
                 bordered={false}
                 style={{
                   background:
-                    "#111827",
+                    "#ebf8fc",
                 }}
               >
-
-                  <Statistic
-  title={
-    <span
-      style={{
-        color: "#21c77a",
-        fontSize: 12,
-        fontWeight: 500,
-      }}
-    >
-      Đã hoàn thành
-    </span>
-  }
-  value={onTime}
-  valueStyle={{
-    color: "#21c77a",
-  }}
-/>
+                <Statistic
+                  title="Đã hoàn thành"
+                  value={completedWO}
+                  valueStyle={{
+                    color:
+                      "#22c55e",
+                  }}
+                />
               </Card>
             </Col>
 
@@ -228,27 +243,17 @@ function SLAStatusChart({ rows }) {
                 bordered={false}
                 style={{
                   background:
-                    "#111827",
+                    "#ebf8fc",
                 }}
               >
-                  <Statistic
-  title={
-    <span
-      style={{
-        color: "#f5a623",
-        fontSize: 12,
-        fontWeight: 500,
-      }}
-    >
-      Đang chờ / xử lý
-    </span>
-  }
-  value={nearDue}
-  valueStyle={{
-    color: "#f5a623",
-  }}
-/>
-
+                <Statistic
+                  title="Đang chờ xử lý"
+                  value={pendingWO}
+                  valueStyle={{
+                    color:
+                      "#3b82f6",
+                  }}
+                />
               </Card>
             </Col>
 
@@ -257,80 +262,99 @@ function SLAStatusChart({ rows }) {
                 bordered={false}
                 style={{
                   background:
-                    "#111827",
+                    "#ebf8fc",
                 }}
               >
-                  <Statistic
-  title={
-    <span
-      style={{
-        color: "#ff4d4f",
-        fontSize: 12,
-        fontWeight: 500,
-      }}
-    >
-      Trễ / Quá hạn
-    </span>
-  }
-  value={overdue}
-  valueStyle={{
-    color: "#ff4d4f",
-  }}
-/>
+                <Statistic
+                  title="Trễ ≤ 5 ngày"
+                  value={overdueUnder3WO}
+                  valueStyle={{
+                    color:
+                      "#f59e0b",
+                  }}
+                />
               </Card>
             </Col>
+
+            <Col span={24}>
+              <Card
+                bordered={false}
+                style={{
+                  background:
+                    "#ebf8fc",
+                }}
+              >
+                <Statistic
+                  title="Trễ > 5 ngày"
+                  value={overdueOver3WO}
+                  valueStyle={{
+                    color:
+                      "#ef4444",
+                  }}
+                />
+              </Card>
+            </Col>
+
           </Row>
 
           <div
             style={{
               marginTop: 24,
-              padding: 16,
-              background: "#111827",
+              padding: 18,
               borderRadius: 12,
+              background: "#ebf8fc",
             }}
           >
-            <div
-              style={{
-                color: "#cbd5e1",
-                marginBottom: 10,
-              }}
-            >
-              Chỉ số đúng hạn
-              (Kế hoạch {slaPercent}%)
-            </div>
-
-            <Progress
-              percent={Number(
-                slaPercent
-              )}
-              strokeColor="#21c77a"
-              trailColor="#334155"
-              showInfo
-            />
 
             <div
               style={{
-                marginTop: 18,
-                color: "#cbd5e1",
-                marginBottom: 10,
+                marginBottom: 8,
+                fontWeight: 600,
               }}
             >
-              Tỷ lệ tồn đọng xử lý ({overduePercent}%)
+              Tỷ lệ hoàn thành
             </div>
 
-            <Progress
-              percent={Number(
-                overduePercent
-              )}
-              strokeColor="#ff4d4f"
-              trailColor="#334155"
-              showInfo
-            />
+            <div
+              style={{
+                fontSize: 28,
+                color: "#22c55e",
+                fontWeight: 700,
+              }}
+            >
+              {completedRate}%
+            </div>
+
+            <div
+              style={{
+                marginTop: 16,
+                marginBottom: 8,
+                fontWeight: 600,
+              }}
+            >
+              Tỷ lệ WO trễ hạn
+            </div>
+
+            <div
+              style={{
+                fontSize: 28,
+                color: "#ef4444",
+                fontWeight: 700,
+              }}
+            >
+              {overdueRate}%
+            </div>
+
           </div>
+
         </Col>
+
       </Row>
+
     </Card>
+
   );
+
 }
 
 export default SLAStatusChart;
