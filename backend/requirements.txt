@@ -2,8 +2,16 @@ asgiref==3.11.1
 Django==5.2.15
 django-cors-headers==4.9.0
 djangorestframework==3.17.1
+et_xmlfile==2.0.0
 gunicorn==26.0.0
+numpy==2.2.6
+openpyxl==3.1.5
 packaging==26.2
+pandas==2.3.3
 psycopg2-binary==2.9.12
+python-dateutil==2.9.0.post0
+pytz==2026.2
+six==1.17.0
 sqlparse==0.5.5
 typing_extensions==4.15.0
+tzdata==2026.2
