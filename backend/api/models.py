@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class ImportBatch(models.Model):
@@ -8,6 +9,37 @@ class ImportBatch(models.Model):
 
     class Meta:
         db_table = "import_batches"
+
+
+class DispatchAssignment(models.Model):
+    province_code = models.CharField(
+        max_length=50
+    )
+
+    ft_of = models.CharField(
+        max_length=50
+    )
+
+    dispatch_group = models.CharField(
+        max_length=255
+    )
+
+    creator = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True
+    )
+
+    assignee = models.CharField(
+        max_length=255
+    )
+
+    created_at = models.DateTimeField(
+        default=timezone.now
+    )
+
+    class Meta:
+        db_table = "dispatch_assignments"
 
 
 class WorkOrder(models.Model):

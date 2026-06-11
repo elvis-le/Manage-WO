@@ -190,10 +190,10 @@ const screens = useBreakpoint();
             rows
                 .filter(
                     row =>
-                        row.employee &&
-                        row.completed ===
-                            true &&
-                        row.close_time
+                        row.dispatch_employee === true &&
+            row.employee &&
+            row.completed === true &&
+            row.close_time
                 )
                 .forEach(
                     row => {
@@ -209,7 +209,7 @@ const screens = useBreakpoint();
                         }
 
                         const key =
-    `${row.province}_${row.employee}`;
+`${row.dispatch_province}_${row.employee}`;
 
                         if (
                             !employeeMap[
@@ -225,7 +225,7 @@ const screens = useBreakpoint();
                                     row.employee,
 
                                 province:
-                                    row.province,
+    row.dispatch_province,
 
                                 groups:
                                     new Set(),

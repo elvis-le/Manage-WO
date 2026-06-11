@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
-from .models import WorkOrder
+from .models import WorkOrder, DispatchAssignment
 
 
 @api_view(["GET"])
@@ -21,6 +21,22 @@ def work_orders(request):
         )
 
     rows = []
+
+    valid_assignees = set(
+        DispatchAssignment.objects.values_list(
+            "assignee",
+            flat=True
+        )
+    )
+
+    assignment_map = {
+        x.assignee: {
+            "province": x.province_code,
+            "dispatch_group": x.dispatch_group,
+            "ft_of": x.ft_of,
+        }
+        for x in DispatchAssignment.objects.all()
+    }
 
     for wo in queryset:
 
@@ -43,12 +59,32 @@ def work_orders(request):
             and (wo.remaining_hours or 0) <= 24
         )
 
+        assignment = assignment_map.get(
+            wo.assignee
+        )
+
         rows.append({
             "province": wo.province_code,
             "priority": wo.priority_level,
             "wo_group": wo.wo_group,
             "coord_group": wo.dispatch_group,
             "employee": wo.assignee,
+            "is_dispatch_employee":
+                wo.assignee in valid_assignees,
+            "dispatch_employee":
+                assignment is not None,
+
+            "dispatch_province":
+                assignment["province"]
+                if assignment else None,
+
+            "dispatch_group":
+                assignment["dispatch_group"]
+                if assignment else None,
+
+            "ft_of":
+                assignment["ft_of"]
+                if assignment else None,
             "penalty": float(wo.penalty_amount or 0),
 
             "close_time": (
