@@ -11,9 +11,18 @@ from .models import WorkOrder
 @api_view(["GET"])
 def work_orders(request):
 
+    batch_id = 1
+
+    queryset = WorkOrder.objects.all()
+
+    if batch_id:
+        queryset = queryset.filter(
+            batch_id=batch_id
+        )
+
     rows = []
 
-    for wo in WorkOrder.objects.all():
+    for wo in queryset:
 
         completed = (
             wo.status in [
@@ -65,6 +74,8 @@ def work_orders(request):
             "pending": pending,
             "overdue": overdue,
             "near_due": near_due,
+            "district": wo.district_name,
+            "phone": wo.ft_phone,
 
             "status": (
                 "completed"

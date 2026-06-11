@@ -25,6 +25,7 @@ import TopProvinceChart from "../components/TopProvinceChart";
 import PendingTable from "../components/PendingTable";
 import FineBarChart from "../components/FineBarChar.jsx";
 import UnderperformingHorizontalBarChart from "../components/UnderperformingHorizontalBarChart.jsx";
+import EmployeeSummaryTable from "../components/EmployeeSummaryTable.jsx";
 
 const {Title, Text} = Typography;
 
@@ -513,13 +514,13 @@ const loadData = async () => {
 
 
                 <Col span={12}>
-                    <EmployeeBarChart
+                    <TopProvinceChart
                         rows={filteredRows}
                     />
                 </Col>
 
                 <Col span={12}>
-                    <TopProvinceChart
+                    <EmployeeBarChart
                         rows={filteredRows}
                     />
                 </Col>
@@ -542,18 +543,40 @@ const loadData = async () => {
             {/*    </Col>*/}
 
 
-                <Col span={24}>
+                    <PendingTable
+                rows={filteredRows}
+            />
+
+            <Row
+                gutter={20}
+                style={{
+                    marginTop: 20,
+                }}
+            >
+
+
+
+                <Col span={8}>
                     <UnderperformingHorizontalBarChart
                         rows={filteredRows}
                     />
                 </Col>
 
+                <Col span={16}>
+                    <EmployeeSummaryTable
+                        rows={filteredRows}
+                    />
+                </Col>
+
+
+            </Row>
+
+
+
             {/*</Row>*/}
 
 
-            <PendingTable
-                rows={filteredRows}
-            />
+
 
         </div>
     );

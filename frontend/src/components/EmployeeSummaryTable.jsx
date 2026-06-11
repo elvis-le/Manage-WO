@@ -19,12 +19,9 @@ import {
 
 const { Title } = Typography;
 
-function PendingTable({ rows }) {
+function EmployeeSummaryTable({ rows }) {
 
     const [coordGroupFilter, setCoordGroupFilter] =
-        useState("ALL");
-
-    const [woGroupFilter, setWoGroupFilter] =
         useState("ALL");
 
     const [searchText, setSearchText] =
@@ -42,64 +39,16 @@ function PendingTable({ rows }) {
         [rows]
     );
 
-    const woGroups = useMemo(
-        () => [
-            "ALL",
-            ...new Set(
-                rows
-                    .map(x => x.wo_group)
-                    .filter(Boolean)
-            ),
-        ],
-        [rows]
-    );
-
-    const dynamicWoGroups = useMemo(() => {
-
-        const groups = [
-            ...new Set(
-                rows
-                    .map(x => x.wo_group)
-                    .filter(Boolean)
-            )
-        ];
-
-        const priorityGroups = [
-            "KSNN",
-            "TD",
-            "VO TUYEN",
-        ];
-
-        return [
-            ...priorityGroups.filter(
-                g => groups.includes(g)
-            ),
-            ...groups.filter(
-                g => !priorityGroups.includes(g)
-            ),
-        ];
-
-    }, [rows]);
-
     const tableData = useMemo(() => {
 
-        let result = rows.filter(
-            row => row.pending
-        );
+        let result = [...rows];
 
         if (coordGroupFilter !== "ALL") {
+
             result = result.filter(
                 x =>
                     x.coord_group ===
                     coordGroupFilter
-            );
-        }
-
-        if (woGroupFilter !== "ALL") {
-            result = result.filter(
-                x =>
-                    x.wo_group ===
-                    woGroupFilter
             );
         }
 
@@ -124,13 +73,13 @@ function PendingTable({ rows }) {
 
                     ||
 
-                    x.coord_group
+                    x.district
                         ?.toLowerCase()
                         .includes(keyword)
 
                     ||
 
-                    x.work_type
+                    x.phone
                         ?.toLowerCase()
                         .includes(keyword)
             );
@@ -142,67 +91,93 @@ function PendingTable({ rows }) {
 
             const key = [
                 row.province,
-                row.work_type,
-                row.coord_group,
                 row.employee,
+                row.phone,
+                row.district,
             ].join("|");
 
             if (!grouped[key]) {
 
                 grouped[key] = {
+
                     key,
 
                     province:
                         row.province,
 
-                    work_type:
-                        row.work_type,
-
-                    coord_group:
-                        row.coord_group,
-
                     employee:
                         row.employee,
 
+                    phone:
+                        row.phone,
+
+                    district:
+                        row.district,
+
                     total_pending: 0,
 
-                    near_due: {},
+                    total_overdue: 0,
 
-                    overdue_5: {},
+                    overdue_5: 0,
+
+                    completed_5_days: 0,
                 };
-
-                dynamicWoGroups.forEach(group => {
-
-                    grouped[key]
-                        .near_due[group] = 0;
-
-                    grouped[key]
-                        .overdue_5[group] = 0;
-                });
             }
 
-            grouped[key]
-                .total_pending += 1;
+            // Tổng WO tồn
+            if (row.pending) {
 
-            const group =
-                row.wo_group;
-
-            if (
-                row.near_due
-                &&
-                group
-            ) {
                 grouped[key]
-                    .near_due[group] += 1;
+                    .total_pending += 1;
             }
 
+            // Tổng WO tồn quá hạn
+            if (row.overdue) {
+
+                grouped[key]
+                    .total_overdue += 1;
+            }
+
+            // Tổng WO tồn quá hạn > 5 ngày
             if (
+                row.pending
+                &&
                 (row.overdue_day || 0) > 5
-                &&
-                group
             ) {
+
                 grouped[key]
-                    .overdue_5[group] += 1;
+                    .overdue_5 += 1;
+            }
+
+            // Tổng WO hoàn thành trong 5 ngày gần nhất
+            if (
+                row.completed
+                &&
+                row.close_time
+            ) {
+
+                const closeDate =
+                    new Date(row.close_time);
+
+                const now =
+                    new Date();
+
+                const diffDay =
+                    (
+                        now - closeDate
+                    ) /
+                    (
+                        1000
+                        * 60
+                        * 60
+                        * 24
+                    );
+
+                if (diffDay <= 5) {
+
+                    grouped[key]
+                        .completed_5_days += 1;
+                }
             }
 
         });
@@ -217,9 +192,7 @@ function PendingTable({ rows }) {
     }, [
         rows,
         coordGroupFilter,
-        woGroupFilter,
         searchText,
-        dynamicWoGroups,
     ]);
 
     const columns = [
@@ -233,66 +206,59 @@ function PendingTable({ rows }) {
         },
 
         {
-            title: "Mã Tỉnh",
+            title: "Mã tỉnh",
             dataIndex: "province",
             width: 120,
             align: "center",
         },
 
         {
-            title: "Loại Công Việc",
-            dataIndex: "work_type",
-            width: 240,
-        },
-
-        {
-            title: "Nhóm điều phối",
-            dataIndex: "coord_group",
+            title: "Nhân viên",
+            dataIndex: "employee",
             width: 220,
         },
 
         {
-            title: "Tên Nhân Viên",
-            dataIndex: "employee",
-            width: 180,
-        },
-
-        {
-            title: "Tổng WO Tồn",
-            dataIndex: "total_pending",
-            width: 130,
+            title: "Số điện thoại",
+            dataIndex: "phone",
+            width: 160,
             align: "center",
         },
 
         {
-            title: "WO Sắp Quá Hạn 1-3 ngày",
-
-            children:
-                dynamicWoGroups.map(
-                    group => ({
-                        title: group,
-                        width: 90,
-                        align: "center",
-                        render: (_, row) =>
-                            row.near_due[group] || 0,
-                    })
-                ),
+            title: "Huyện",
+            dataIndex: "district",
+            width: 240,
         },
 
         {
-            title: "WO Quá Hạn > 5 Ngày",
-
-            children:
-                dynamicWoGroups.map(
-                    group => ({
-                        title: group,
-                        width: 90,
-                        align: "center",
-                        render: (_, row) =>
-                            row.overdue_5[group] || 0,
-                    })
-                ),
+            title: "Tổng WO tồn",
+            dataIndex: "total_pending",
+            width: 140,
+            align: "center",
         },
+
+        {
+            title: "Tổng WO tồn quá hạn",
+            dataIndex: "total_overdue",
+            width: 170,
+            align: "center",
+        },
+
+        {
+            title: "Tổng WO tồn quá hạn > 5 ngày",
+            dataIndex: "overdue_5",
+            width: 180,
+            align: "center",
+        },
+
+        {
+            title: "Tổng WO thực hiện 5 ngày gần nhất",
+            dataIndex: "completed_5_days",
+            width: 220,
+            align: "center",
+        },
+
     ];
 
     return (
@@ -313,7 +279,7 @@ function PendingTable({ rows }) {
                     marginBottom: 20,
                 }}
             >
-                WO Chưa Hoàn Thành
+                Tổng Hợp Theo Nhân Viên
             </Title>
 
             <Space
@@ -348,20 +314,19 @@ function PendingTable({ rows }) {
                     }}
                 />
 
-                <Space wrap>
-
-                    <Select
-                        value={
-                            coordGroupFilter
-                        }
-                        onChange={
-                            setCoordGroupFilter
-                        }
-                        style={{
-                            width: 250,
-                        }}
-                    >
-                        {coordGroups.map(
+                <Select
+                    value={
+                        coordGroupFilter
+                    }
+                    onChange={
+                        setCoordGroupFilter
+                    }
+                    style={{
+                        width: 250,
+                    }}
+                >
+                    {
+                        coordGroups.map(
                             g => (
                                 <Select.Option
                                     key={g}
@@ -370,33 +335,9 @@ function PendingTable({ rows }) {
                                     {g}
                                 </Select.Option>
                             )
-                        )}
-                    </Select>
-
-                    {/*<Select*/}
-                    {/*    value={*/}
-                    {/*        woGroupFilter*/}
-                    {/*    }*/}
-                    {/*    onChange={*/}
-                    {/*        setWoGroupFilter*/}
-                    {/*    }*/}
-                    {/*    style={{*/}
-                    {/*        width: 220,*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    {woGroups.map(*/}
-                    {/*        g => (*/}
-                    {/*            <Select.Option*/}
-                    {/*                key={g}*/}
-                    {/*                value={g}*/}
-                    {/*            >*/}
-                    {/*                {g}*/}
-                    {/*            </Select.Option>*/}
-                    {/*        )*/}
-                    {/*    )}*/}
-                    {/*</Select>*/}
-
-                </Space>
+                        )
+                    }
+                </Select>
 
             </Space>
 
@@ -416,6 +357,7 @@ function PendingTable({ rows }) {
                     },
                 }}
             >
+
                 <Table
                     rowKey="key"
                     columns={columns}
@@ -433,10 +375,12 @@ function PendingTable({ rows }) {
                         x: "max-content",
                     }}
                 />
+
             </ConfigProvider>
 
         </Card>
     );
 }
 
-export default PendingTable;
+export default EmployeeSummaryTable;
+
