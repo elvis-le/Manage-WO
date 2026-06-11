@@ -3,6 +3,7 @@ import {
   Col,
   Row,
   Statistic,
+    Grid,
 } from "antd";
 
 import {
@@ -16,6 +17,10 @@ import {
 } from "@ant-design/icons";
 
 function KPICards({ rows }) {
+
+    const { useBreakpoint } = Grid;
+
+const screens = useBreakpoint();
 
   const totalAll =
   rows.length;
@@ -157,15 +162,16 @@ const percent = value =>
             key={index}
             xs={24}
             sm={12}
-            md={12}
+            md={8}
             lg={6}
-            xl={6}
+            // xl={6}
           >
 
             <Card
               hoverable
               style={{
-                height: 135,
+    minHeight: 135,
+    height: "100%",
                 borderRadius: 16,
                 border:
                   "1px solid #d9f2ff",
@@ -189,6 +195,7 @@ const percent = value =>
                     "center",
                   height:
                     "100%",
+    gap: 10,
                 }}
               >
 
@@ -218,13 +225,10 @@ const percent = value =>
                       card.suffix
                     }
                     valueStyle={{
-                      color:
-                        card.color,
-                      fontWeight:
-                        700,
-                      fontSize:
-                        26,
-                    }}
+    color: card.color,
+    fontWeight: 700,
+    fontSize: screens.xs ? 20 : 26,
+  }}
                   />
 
                 </div>
@@ -269,7 +273,7 @@ const percent = value =>
                       color:
                         card.color,
                       fontSize:
-                        24,
+                        18,
                       fontWeight:
                         700,
                     }}

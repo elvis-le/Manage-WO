@@ -9,7 +9,7 @@ import {
     Tag,
     Statistic,
     Row,
-    Col,
+    Col, ConfigProvider, Grid,
 } from "antd";
 
 import {
@@ -29,7 +29,10 @@ const { Text } = Typography;
  * DATE HELPERS
  * =======================================================*/
 
+
 const formatDate = (date) => {
+
+
     const y = date.getFullYear();
 
     const m = String(
@@ -42,6 +45,8 @@ const formatDate = (date) => {
 
     return `${y}-${m}-${d}`;
 };
+
+
 
 const getLast5WorkingDays = () => {
 
@@ -78,6 +83,10 @@ const getLast5WorkingDays = () => {
 const UnderperformingHorizontalBarChart = ({
     rows = [],
 }) => {
+
+
+const { useBreakpoint } = Grid;
+const screens = useBreakpoint();
 
     const [
         province,
@@ -630,7 +639,8 @@ if (totalWO >= 25) {
             dataIndex:
                 "employee",
 
-            width: 140,
+            width: 160,
+    fixed: "left",
         },
 
         {
@@ -641,6 +651,7 @@ if (totalWO >= 25) {
                 "province",
 
             width: 90,
+    fixed: "left",
 
             render: v => (
                 <Tag color="blue">
@@ -652,6 +663,7 @@ if (totalWO >= 25) {
         {
             title:
                 "WO Group",
+
 
             dataIndex:
                 "groups",
@@ -939,20 +951,35 @@ if (totalWO >= 25) {
 
             style={{
 
-                borderRadius: 20,
+                borderRadius: 16,
 
-                background:
-                    "#f8fcff",
-
+                background: "#e1f4fa",
                 boxShadow:
-                    "0 8px 30px rgba(0,0,0,0.08)",
+                    "0 8px 24px rgba(0,0,0,0.08)",
             }}
+>
 
-            title={title}
 
-            extra={
+            <div
+    style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: 12,
+        marginBottom: 20,
+    }}
+>
 
-                <Space>
+    <div
+        style={{
+            fontSize: 20,
+            fontWeight: 700,
+        }}
+    >
+        {title}
+    </div>
+    <Space wrap>
 
                     <Select
 
@@ -961,7 +988,11 @@ if (totalWO >= 25) {
                         }
 
                         style={{
-                            width: 150,
+        width: "100%",
+        minWidth: 140,
+        maxWidth: 200,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
                         }}
 
                         onChange={
@@ -995,7 +1026,11 @@ if (totalWO >= 25) {
                         }
 
                         style={{
-                            width: 160,
+        width: "100%",
+        minWidth: 140,
+        maxWidth: 220,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
                         }}
 
                         onChange={
@@ -1014,8 +1049,8 @@ if (totalWO >= 25) {
                     />
 
                 </Space>
-            }
-        >
+
+            </div>
 
             {/* KPI CARDS */}
 
@@ -1026,10 +1061,20 @@ if (totalWO >= 25) {
                 }}
             >
 
-                <Col span={12}>
+                <Col
+    xs={24}
+    sm={12}
+>
 
                     <Card
                         size="small"
+                style={{
+                background: "#e1f4fa",
+                boxShadow:
+                    "0 12px 32px rgba(0,0,0,.15)",
+
+                            border: "1px solid #18bdf0"
+                }}
                     >
 
                         <Statistic
@@ -1043,10 +1088,20 @@ if (totalWO >= 25) {
 
                 </Col>
 
-                <Col span={12}>
+                <Col
+    xs={24}
+    sm={12}
+>
 
                     <Card
                         size="small"
+                style={{
+                background: "#e1f4fa",
+                boxShadow:
+                    "0 12px 32px rgba(0,0,0,.15)",
+
+                            border: "1px solid #18bdf0"
+                }}
                     >
 
                         <Statistic
@@ -1110,11 +1165,17 @@ if (totalWO >= 25) {
 
                 width="100%"
 
-                height={Math.max(
-                    450,
-                    chartData.length *
-                        42
-                )}
+                height={
+    screens.xs
+        ? Math.max(
+              250,
+              chartData.length * 32
+          )
+        : Math.max(
+              450,
+              chartData.length * 42
+          )
+}
             >
 
                 <BarChart
@@ -1131,7 +1192,7 @@ if (totalWO >= 25) {
 
                         right: 40,
 
-                        left: 10,
+                        left: 0,
 
                         bottom: 10,
                     }}
@@ -1146,13 +1207,14 @@ if (totalWO >= 25) {
                     />
 
                     <YAxis
-
-                        type="category"
-
-                        dataKey="name"
-
-                        width={160}
-                    />
+    type="category"
+    dataKey="name"
+    width={
+        screens.xs
+            ? 90
+            : 140
+    }
+/>
 
                     <Tooltip
 
@@ -1195,11 +1257,14 @@ if (totalWO >= 25) {
                     >
 
                         <LabelList
-
-                            dataKey="value"
-
-                            position="right"
-                        />
+    dataKey="value"
+    position="right"
+    fontSize={
+        screens.xs
+            ? 10
+            : 12
+    }
+/>
 
                     </Bar>
 
@@ -1208,7 +1273,22 @@ if (totalWO >= 25) {
             </ResponsiveContainer>
 
             {/* TABLE */}
-
+<ConfigProvider
+                theme={{
+                    components: {
+                        Table: {
+                            headerBg:
+                                "#e1f4fa",
+                            colorBgContainer:
+                                "#e1f4fa",
+                            rowHoverBg:
+                                "#e1f4fa",
+                            borderColor:
+                                "#18bdf0",
+                        },
+                    },
+                }}
+            >
             <Table
 
                 rowKey="key"
@@ -1226,8 +1306,9 @@ if (totalWO >= 25) {
                 size="small"
 
                 pagination={{
-                    pageSize: 20,
-                }}
+    pageSize: 10,
+    showSizeChanger: false,
+}}
 
                 scroll={{
                     x: "max-content",
@@ -1235,8 +1316,10 @@ if (totalWO >= 25) {
 
                 style={{
                     marginTop: 24,
+                background: "#e1f4fa",
                 }}
             />
+</ConfigProvider>
 
         </Card>
     );

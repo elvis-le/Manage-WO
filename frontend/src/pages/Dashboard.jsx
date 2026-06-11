@@ -210,10 +210,9 @@ const loadData = async () => {
 
         <div
             style={{
-                padding: 24,
+                padding: window.innerWidth < 768 ? 12 : 24,
                 minHeight: "100vh",
-                background:
-                    "#ebf8fc",
+                background: "#ebf8fc",
             }}
         >
 
@@ -225,7 +224,7 @@ const loadData = async () => {
             >
 
                 <Title
-                    level={2}
+                    level={3}
                     style={{
                         marginBottom: 0,
                     }}
@@ -303,7 +302,10 @@ const loadData = async () => {
 
                     <Col>
 
-                        <Space>
+                        <Space
+    wrap
+    size={[12, 12]}
+>
 
                             <Select
                                 value={year}
@@ -377,7 +379,8 @@ const loadData = async () => {
                                 }
                                 value={woGroup}
                                 style={{
-                                    width: 220,
+    minWidth: 150,
+    width: "100%",
                                     background: "#ebf8fc",
                                     border: "1px solid #18bdf0"
                                 }}
@@ -409,6 +412,7 @@ const loadData = async () => {
                                 value={province}
                                 style={{
                                     width: 180,
+    maxWidth: "100%",
                                     background: "#ebf8fc",
                                     border: "1px solid #18bdf0",
                                 }}
@@ -472,22 +476,22 @@ const loadData = async () => {
 
 
             <Row
-                gutter={20}
-                style={{
-                    marginTop: 20,
-                }}
-            >
-                <Col span={12}>
-                    <ProvinceBarChart
-                        rows={filteredRows}
-                    />
-                </Col>
+    gutter={[20, 20]}
+    style={{
+        marginTop: 20,
+    }}
+>
+                <Col xs={24} sm={24} md={24} lg={12}>
+    <ProvinceBarChart
+        rows={filteredRows}
+    />
+</Col>
 
-                <Col span={12}>
-                    <FineBarChart
-                        rows={filteredRows}
-                    />
-                </Col>
+<Col xs={24} sm={24} md={24} lg={12}>
+    <FineBarChart
+        rows={filteredRows}
+    />
+</Col>
 
 
                 {/*<Col span={12}>
@@ -506,24 +510,24 @@ const loadData = async () => {
 
 
             <Row
-                gutter={20}
-                style={{
-                    marginTop: 20,
-                }}
-            >
+    gutter={[20, 20]}
+    style={{
+        marginTop: 20,
+    }}
+>
 
 
-                <Col span={12}>
-                    <TopProvinceChart
-                        rows={filteredRows}
-                    />
-                </Col>
+                <Col xs={24} sm={24} md={24} lg={12}>
+    <TopProvinceChart
+        rows={filteredRows}
+    />
+</Col>
 
-                <Col span={12}>
-                    <EmployeeBarChart
-                        rows={filteredRows}
-                    />
-                </Col>
+<Col xs={24} sm={24} md={24} lg={12}>
+    <EmployeeBarChart
+        rows={filteredRows}
+    />
+</Col>
 
 
             </Row>
@@ -543,39 +547,42 @@ const loadData = async () => {
             {/*    </Col>*/}
 
 
-                    <PendingTable
-                rows={filteredRows}
-            />
+            <div
+                style={{
+                    overflowX: "auto",
+                    marginTop: 20,
+                }}
+            >
+                <PendingTable
+                    rows={filteredRows}
+                />
+            </div>
 
             <Row
-                gutter={20}
+                gutter={[20, 20]}
                 style={{
                     marginTop: 20,
                 }}
             >
 
 
+                <Col xs={24} sm={24} md={24} lg={8}>
+    <UnderperformingHorizontalBarChart
+        rows={filteredRows}
+    />
+</Col>
 
-                <Col span={8}>
-                    <UnderperformingHorizontalBarChart
-                        rows={filteredRows}
-                    />
-                </Col>
-
-                <Col span={16}>
-                    <EmployeeSummaryTable
-                        rows={filteredRows}
-                    />
-                </Col>
+<Col xs={24} sm={24} md={24} lg={16}>
+    <EmployeeSummaryTable
+        rows={filteredRows}
+    />
+</Col>
 
 
             </Row>
 
 
-
             {/*</Row>*/}
-
-
 
 
         </div>

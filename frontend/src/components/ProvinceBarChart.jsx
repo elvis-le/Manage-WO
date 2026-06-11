@@ -1,4 +1,4 @@
-import {Card, Select} from "antd";
+import {Card, Grid, Select} from "antd";
 import {useMemo, useState} from "react";
 
 import {
@@ -20,6 +20,9 @@ import {
 } from "@ant-design/icons";
 
 function ProvinceBarChart({rows}) {
+
+    const { useBreakpoint } = Grid;
+const screens = useBreakpoint();
 
     const provinces = useMemo(
         () => [
@@ -126,9 +129,10 @@ function ProvinceBarChart({rows}) {
             <div
                 style={{
                     display: "flex",
-                    justifyContent:
-                        "space-between",
+                    justifyContent: "space-between",
                     alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 16,
                     marginBottom: 24,
                 }}
             >
@@ -157,7 +161,7 @@ function ProvinceBarChart({rows}) {
                     <div>
                         <div
                             style={{
-                                fontSize: 22,
+                                fontSize: screens.xs ? 16 : 22,
                                 fontWeight: 700,
                             }}
                         >
@@ -195,7 +199,8 @@ function ProvinceBarChart({rows}) {
                     }
                     maxTagCount="responsive"
                     style={{
-                        width: 300,
+    width: "100%",
+    maxWidth: screens.xs ? "100%" : 300,
                         background: "#e1f4fa",
                         border: "1px solid #18bdf0"
                     }}
@@ -223,7 +228,7 @@ function ProvinceBarChart({rows}) {
 
             <ResponsiveContainer
                 width="100%"
-                height={450}
+    height={screens.xs ? 300 : 450}
             >
 
                 <BarChart
@@ -243,6 +248,9 @@ function ProvinceBarChart({rows}) {
 
                     <XAxis
                         dataKey="province"
+    angle={-45}
+    textAnchor="end"
+    height={80}
                         tick={{
                             fill: "#94a3b8",
                             fontSize: 12,
@@ -279,6 +287,7 @@ function ProvinceBarChart({rows}) {
                         align="center"
                         iconType="circle"
                         wrapperStyle={{
+        fontSize: 12,
                             fontWeight: 600,
                             paddingBottom: 20,
                         }}
@@ -295,7 +304,7 @@ function ProvinceBarChart({rows}) {
                             dataKey="completed"
                             position="center"
                             fill="#000000"
-                            fontSize={11}
+    fontSize={10}
                             fontWeight={600}
                         />
                     </Bar>
@@ -311,7 +320,7 @@ function ProvinceBarChart({rows}) {
                             dataKey="processing"
                             position="center"
                             fill="#000000"
-                            fontSize={11}
+    fontSize={10}
                             fontWeight={600}
                         />
                         <LabelList
@@ -335,7 +344,7 @@ function ProvinceBarChart({rows}) {
                             dataKey="overdue"
                             position="center"
                             fill="#000000"
-                            fontSize={11}
+    fontSize={10}
                             fontWeight={600}
                         />
                         <LabelList

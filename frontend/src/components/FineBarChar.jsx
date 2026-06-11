@@ -1,6 +1,6 @@
 import {
     Button,
-    Card,
+    Card, Grid,
     Select, Space,
 } from "antd";
 
@@ -30,6 +30,10 @@ import {
 function FineBarChart({
                           rows,
                       }) {
+
+    const { useBreakpoint } = Grid;
+
+const screens = useBreakpoint();
 
     const [viewType, setViewType] =
         useState("PROVINCE");
@@ -263,9 +267,10 @@ function FineBarChart({
             <div
                 style={{
                     display: "flex",
-                    justifyContent:
-                        "space-between",
+                    justifyContent: "space-between",
                     alignItems: "center",
+                    flexWrap: "wrap",
+                    gap: 12,
                     marginBottom: 24,
                 }}
             >
@@ -296,7 +301,7 @@ function FineBarChart({
 
                         <div
                             style={{
-                                fontSize: 22,
+                                fontSize: screens.xs ? 16 : 22,
                                 fontWeight: 700,
                             }}
                         >
@@ -316,7 +321,9 @@ function FineBarChart({
 
                 </div>
 
-                <Space>
+                <Space
+                    wrap
+                >
                     <Button
                         type={
                             viewType === "PROVINCE"
@@ -363,6 +370,10 @@ function FineBarChart({
                 <Select
                     value={province}
                     onChange={setProvince}
+                    style={{
+                        width: "100%",
+                        maxWidth: 250,
+                    }}
                 >
                     {provinces.map(
                         item => (
@@ -377,141 +388,166 @@ function FineBarChart({
                 </Select>
 
             </div>
-
-            <ResponsiveContainer
-                width="100%"
-                height={450}
+            <div
+                style={{
+                    width: "100%",
+                    overflowX: "auto",
+                }}
             >
-
-                <ComposedChart
-                    data={chartData}
-                    margin={{
-                        top: 20,
-                        right: 0,
-                        left: 0,
-                        bottom: 20,
+                <div
+                    style={{
+                        minWidth:
+                            chartData.length * 80,
+                        height:
+                            screens.xs
+                                ? 320
+                                : 450,
                     }}
                 >
-
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                    />
-
-                    <XAxis
-                        dataKey="name"
-                    />
-
-                    <YAxis
-                        yAxisId="left"
-                        allowDecimals={false}
-                    />
-
-                    <YAxis
-                        yAxisId="right"
-                        orientation="right"
-    tickFormatter={formatMoney}
-                    />
-
-                    <Tooltip
-    formatter={(value, name) => {
-
-        if (
-            name.includes("Tiền phạt")
-        ) {
-            return [
-                Number(value).toLocaleString("vi-VN") + " VND",
-                name,
-            ];
-        }
-
-        return [value, name];
-    }}
-/>
-
-                    <Legend/>
-
-                    <Bar
-                        yAxisId="left"
-                        dataKey="overdue_closed"
-                        stackId="wo"
-                        name="Quá hạn đã đóng"
-                        fill="#faad14"
+                    <ResponsiveContainer
+            width="100%"
+            height="100%"
                     >
-                        <LabelList
-                            dataKey="overdue_closed"
-                            position="center"
-                            fill="#ffffff"
-                            fontWeight={600}
-                        />
-                    </Bar>
 
-                    <Bar
-                        yAxisId="left"
-                        dataKey="overdue_open"
-                        stackId="wo"
-                        name="Quá hạn chưa đóng"
-                        fill="#ff4d4f"
-                    >
-                        <LabelList
-                            dataKey="overdue_open"
-                            position="center"
-                            fill="#ffffff"
-                            fontWeight={600}
-                        />
+                        <ComposedChart
+                            data={chartData}
+                            margin={{
+                                top: 20,
+                                right: 0,
+                                left: 0,
+                                bottom: 20,
+                            }}
+                        >
 
-                        <LabelList
-                            dataKey="total_overdue"
-                            position="top"
-                            fill="#000000"
-                            fontSize={13}
-                            fontWeight={700}
-                        />
-                    </Bar>
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                            />
+
+                            <XAxis
+                                dataKey="name"
+                                angle={-45}
+                                textAnchor="end"
+                                height={80}
+                                tick={{
+                                    fontSize: 11,
+                                }}
+                            />
+
+                            <YAxis
+                                yAxisId="left"
+                                allowDecimals={false}
+                            />
+
+                            <YAxis
+                                yAxisId="right"
+                                orientation="right"
+                                tickFormatter={formatMoney}
+                            />
+
+                            <Tooltip
+                                formatter={(value, name) => {
+
+                                    if (
+                                        name.includes("Tiền phạt")
+                                    ) {
+                                        return [
+                                            Number(value).toLocaleString("vi-VN") + " VND",
+                                            name,
+                                        ];
+                                    }
+
+                                    return [value, name];
+                                }}
+                            />
+
+                            <Legend/>
+
+                            <Bar
+                                yAxisId="left"
+                                dataKey="overdue_closed"
+                                stackId="wo"
+                                name="Quá hạn đã đóng"
+                                fill="#faad14"
+                            >
+                                <LabelList
+                                    dataKey="overdue_closed"
+                                    position="center"
+                                    fill="#ffffff"
+                                    fontWeight={600}
+                                />
+                            </Bar>
+
+                            <Bar
+                                yAxisId="left"
+                                dataKey="overdue_open"
+                                stackId="wo"
+                                name="Quá hạn chưa đóng"
+                                fill="#ff4d4f"
+                            >
+                                <LabelList
+                                    dataKey="overdue_open"
+                                    position="center"
+                                    fill="#ffffff"
+                                    fontWeight={600}
+                                />
+
+                                <LabelList
+                                    dataKey="total_overdue"
+                                    position="top"
+                                    fill="#000000"
+                                    fontSize={13}
+                                    fontWeight={700}
+                                />
+                            </Bar>
 
 
-                    <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="penalty_open"
-                        name="Tiền phạt quá hạn chưa đóng"
-                        stroke="#52c41a"
-                        strokeWidth={3}
-                        dot={{r: 5}}
-                    >
-                        <LabelList
-                            dataKey="penalty_open"
-                            position="top"
-                            fill="#000000"
-                            fontWeight={600}
-                            formatter={formatMoney}
-                        />
-                    </Line>
+                            <Line
+                                yAxisId="right"
+                                type="monotone"
+                                dataKey="penalty_open"
+                                name="Tiền phạt quá hạn chưa đóng"
+                                stroke="#52c41a"
+                                strokeWidth={3}
+                                dot={{r: 5}}
+                            >
+                                <LabelList
+                                    dataKey="penalty_open"
+                                    position="top"
+                                    fill="#000000"
+                                    fontSize={10}
+                                    fontWeight={600}
+                                    formatter={formatMoney}
+                                />
+                            </Line>
 
-                    <Line
-                        yAxisId="right"
-                        type="monotone"
-                        dataKey="penalty_closed"
-                        name="Tiền phạt quá hạn đã đóng"
-                        stroke="#1677ff"
-                        strokeWidth={3}
-                        dot={{r: 5}}
-                    >
-                        <LabelList
-                            dataKey="penalty_closed"
-                            position="top"
-                            fill="#000000"
-                            fontWeight={600}
-                            formatter={formatMoney}
-                        />
-                    </Line>
+                            <Line
+                                yAxisId="right"
+                                type="monotone"
+                                dataKey="penalty_closed"
+                                name="Tiền phạt quá hạn đã đóng"
+                                stroke="#1677ff"
+                                strokeWidth={3}
+                                dot={{r: 5}}
+                            >
+                                <LabelList
+                                    dataKey="penalty_closed"
+                                    position="top"
+                                    fill="#000000"
+                                    fontSize={10}
+                                    fontWeight={600}
+                                    formatter={formatMoney}
+                                />
+                            </Line>
 
-                </ComposedChart>
+                        </ComposedChart>
 
-            </ResponsiveContainer>
+                    </ResponsiveContainer>
+                </div>
+            </div>
 
         </Card>
 
-    );
+);
 
 }
 

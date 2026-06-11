@@ -1,5 +1,5 @@
 import {
-    Card,
+    Card, Grid,
     Select,
     Space,
     Typography,
@@ -32,6 +32,9 @@ const {Title} = Typography;
 function TopProvinceChart({
                               rows,
                           }) {
+    const { useBreakpoint } = Grid;
+
+const screens = useBreakpoint();
 
     const [metric, setMetric] =
         useState("pending");
@@ -335,7 +338,7 @@ function TopProvinceChart({
                     alignItems: "center",
                     marginBottom: 20,
                     flexWrap: "wrap",
-                    gap: 12,
+                    gap: 10,
                 }}
             >
 
@@ -364,7 +367,10 @@ function TopProvinceChart({
                         <div
                             style={{
                                 fontWeight: 700,
-                                fontSize: 24,
+                                fontSize:
+    screens.xs
+        ? 16
+        : 24,
                             }}
                         >
                             {title}
@@ -395,7 +401,8 @@ function TopProvinceChart({
                         value={metric}
                         onChange={setMetric}
                         style={{
-                            width: 180,
+    width: "100%",
+    maxWidth: 180,
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
@@ -424,7 +431,8 @@ function TopProvinceChart({
                         }
                         value={province}
                         style={{
-                            width: 180,
+    width: "100%",
+    maxWidth: 180,
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
@@ -466,7 +474,8 @@ function TopProvinceChart({
                         }
                         value={woGroup}
                         style={{
-                            width: 220,
+    width: "100%",
+    maxWidth: 220,
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
@@ -496,7 +505,10 @@ function TopProvinceChart({
 
             <div
                 style={{
-                    maxHeight: 520,
+                    maxHeight:
+    screens.xs
+        ? 350
+        : 520,
                     overflowY: "auto",
                     paddingRight: 8,
                 }}
@@ -582,10 +594,15 @@ function TopProvinceChart({
                                         <span
                                             style={{
                                                 fontWeight: 600,
+                                                maxWidth: "70%",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                whiteSpace: "nowrap",
                                             }}
+                                            title={item.name}
                                         >
-                {item.name}
-              </span>
+    {item.name}
+</span>
                                     </div>
 
                                     <div
@@ -609,7 +626,7 @@ function TopProvinceChart({
 
                                 <div
                                     style={{
-                                        height: 8,
+                                        height: 10,
                                         background:
                                             "#1e293b",
                                         borderRadius: 10,

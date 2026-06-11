@@ -12,7 +12,7 @@ import {
 
 import {
     Button,
-    Card,
+    Card, Grid,
     Select,
 } from "antd";
 
@@ -30,6 +30,10 @@ import {
 function EmployeeBarChart({
                               rows,
                           }) {
+
+    const { useBreakpoint } = Grid;
+
+const screens = useBreakpoint();
 
 
     const [group, setGroup] =
@@ -146,36 +150,43 @@ function EmployeeBarChart({
 
                 filteredRows.forEach(row => {
 
-                    const key =
-                        row.employee ||
-                        "Chưa gán";
+    const key =
+        row.district ||
+        "Chưa xác định";
 
-                    if (!result[key]) {
+    if (!result[key]) {
 
-                        result[key] = {
-                            name: key,
-                            completed: 0,
-                            processing: 0,
-                            overdue: 0,
-                            total: 0,
-                        };
+        result[key] = {
+            name: key,
+            completed: 0,
+            processing: 0,
+            overdue: 0,
+            total: 0,
+        };
 
-                    }
-                    result[key].total++;
+    }
 
-                    if (row.completed) {
-                        result[key].completed++;
-                    }
+    result[key].total++;
 
-                    if (row.pending && !row.overdue) {
-                        result[key].processing++;
-                    }
+    if (row.completed) {
+        result[key].completed++;
+    }
 
-                    if (row.overdue) {
-                        result[key].overdue++;
-                    }
+    if (
+        row.pending &&
+        !row.overdue
+    ) {
+        result[key].processing++;
+    }
 
-                });
+    if (
+        row.overdue &&
+        !row.completed
+    ) {
+        result[key].overdue++;
+    }
+
+});
 
             }
 
@@ -272,7 +283,10 @@ function EmployeeBarChart({
 
                     <div
                         style={{
-                            fontSize: 22,
+                            fontSize:
+                                screens.xs
+                                    ? 16
+                                    : 22,
                             fontWeight: 700,
                         }}
                     >
@@ -300,7 +314,8 @@ function EmployeeBarChart({
                     <Select
                         value={province}
                         style={{
-                            width: 180,
+                            width: "100%",
+                            maxWidth: 180,
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
@@ -337,7 +352,8 @@ function EmployeeBarChart({
                     <Select
                         value={group}
                         style={{
-                            width: 220,
+                            width: "100%",
+                            maxWidth: 220,
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
@@ -381,147 +397,180 @@ function EmployeeBarChart({
 
             </div>
 
-
-            <ResponsiveContainer
-                width="100%"
-                height={
-                    fullscreen
-                        ? window.innerHeight - 120
-                        : 540
-                }
+            <div
+                style={{
+                    overflowX: "auto",
+                }}
             >
-
-                <BarChart
-                    data={chartData}
-                    margin={{
-                        top: 20,
-                        right: 20,
-                        left: 0,
-                        bottom: 10,
+                <div
+                    style={{
+                        minWidth:
+                            Math.max(
+                                chartData.length * 90,
+                                800
+                            ),
+                        height:
+                            fullscreen
+                                ? window.innerHeight - 120
+                                : screens.xs
+                                    ? 320
+                                    : 540,
                     }}
                 >
-
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                        vertical={false}
-                    />
-
-                    <XAxis
-                        dataKey="name"
-                        angle={-90}
-                        textAnchor="end"
-                        interval={0}
-                        height={70}
-                    />
-
-                    <YAxis/>
-
-                    <Tooltip/>
-
-
-                    <Legend
-                        verticalAlign="top"
-                        align="center"
-                        iconType="circle"
-                        wrapperStyle={{
-                            fontWeight: 600,
-                            paddingBottom: 20,
-                            fontSize:
-                                fullscreen
-                                    ? 18
-                                    : 13,
-                        }}
-                    />
-
-
-                    <Bar
-                        dataKey="completed"
-                        stackId="a"
-                        name="Đã hoàn thành"
-                        fill="#1fc48d"
-                        radius={[4, 4, 0, 0]}
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
                     >
-                        <LabelList
-                            dataKey="completed"
-                            position="center"
-                            fill="#000000"
-                            fontSize={
-                                fullscreen
-                                    ? 16
-                                    : 11
-                            }
-                            fontWeight={600}
-                        /></Bar>
 
-                    <Bar
-                        dataKey="processing"
-                        stackId="a"
-                        name="Đang xử lý"
-                        fill="#4285f4"
-                        radius={[4, 4, 0, 0]}
-                    >
-                        <LabelList
-                            dataKey="processing"
-                            position="center"
-                            fill="#000000"
-                            fontSize={
-                                fullscreen
-                                    ? 16
-                                    : 11
-                            }
-                            fontWeight={600}
-                        />
-                        <LabelList
-                            dataKey="processingTotal"
-                            position="top"
-                            fill="#000000"
-                            fontSize={
-                                fullscreen
-                                    ? 20
-                                    : 13
-                            }
-                            fontWeight={700}
-                        />
-                    </Bar>
+                        <BarChart
+                            data={chartData}
+                            margin={{
+                                top: 20,
+                                right: 20,
+                                left: 0,
+                                bottom: 10,
+                            }}
+                        >
 
-                    <Bar
-                        dataKey="overdue"
-                        stackId="a"
-                        name="Quá hạn trễ"
-                        fill="#ff4d57"
-                        radius={[4, 4, 0, 0]}
-                    >
-                        <LabelList
-                            dataKey="overdue"
-                            position="center"
-                            fill="#000000"
-                            fontSize={
-                                fullscreen
-                                    ? 16
-                                    : 11
-                            }
-                            fontWeight={600}
-                        />
-                        <LabelList
-                            dataKey="total"
-                            position="top"
-                            fill="#000000"
-                            fontSize={
-                                fullscreen
-                                    ? 20
-                                    : 13
-                            }
-                            fontWeight={700}
-                        />
-                    </Bar>
+                            <CartesianGrid
+                                strokeDasharray="3 3"
+                                vertical={false}
+                            />
 
-                </BarChart>
+                            <XAxis
+                                dataKey="name"
+                                angle={
+                                    screens.xs
+                                        ? -45
+                                        : -90
+                                }
+                                textAnchor="end"
+                                interval={0}
+                                height={
+                                    screens.xs
+                                        ? 90
+                                        : 70
+                                }
+                            />
 
-            </ResponsiveContainer>
+                            <YAxis/>
+
+                            <Tooltip/>
+
+
+                            <Legend
+                                verticalAlign="top"
+                                align="center"
+                                iconType="circle"
+                                wrapperStyle={{
+                                    fontWeight: 600,
+                                    paddingBottom: 20,
+                                    fontSize:
+                                        fullscreen
+                                            ? 16
+                                            : screens.xs
+                                                ? 9
+                                                : 11
+                                }}
+                            />
+
+
+                            <Bar
+                                dataKey="completed"
+                                stackId="a"
+                                name="Đã hoàn thành"
+                                fill="#1fc48d"
+                                radius={[4, 4, 0, 0]}
+                            >
+                                <LabelList
+                                    dataKey="completed"
+                                    position="center"
+                                    fill="#000000"
+                                    fontSize={
+                                        fullscreen
+                                            ? 16
+                                            : screens.xs
+                                                ? 9
+                                                : 11
+                                    }
+                                    fontWeight={600}
+                                /></Bar>
+
+                            <Bar
+                                dataKey="processing"
+                                stackId="a"
+                                name="Đang xử lý"
+                                fill="#4285f4"
+                                radius={[4, 4, 0, 0]}
+                            >
+                                <LabelList
+                                    dataKey="processing"
+                                    position="center"
+                                    fill="#000000"
+                                    fontSize={
+                                        fullscreen
+                                            ? 16
+                                            : screens.xs
+                                                ? 9
+                                                : 11
+                                    }
+                                    fontWeight={600}
+                                />
+                                <LabelList
+                                    dataKey="processingTotal"
+                                    position="top"
+                                    fill="#000000"
+                                    fontSize={
+                                        fullscreen
+                                            ? 20
+                                            : 13
+                                    }
+                                    fontWeight={700}
+                                />
+                            </Bar>
+
+                            <Bar
+                                dataKey="overdue"
+                                stackId="a"
+                                name="Quá hạn trễ"
+                                fill="#ff4d57"
+                                radius={[4, 4, 0, 0]}
+                            >
+                                <LabelList
+                                    dataKey="overdue"
+                                    position="center"
+                                    fill="#000000"
+                                    fontSize={
+                                        fullscreen
+                                            ? 16
+                                            : screens.xs
+                                                ? 9
+                                                : 11
+                                    }
+                                    fontWeight={600}
+                                />
+                                <LabelList
+                                    dataKey="total"
+                                    position="top"
+                                    fill="#000000"
+                                    fontSize={
+                                        fullscreen
+                                            ? 20
+                                            : 13
+                                    }
+                                    fontWeight={700}
+                                />
+                            </Bar>
+
+                        </BarChart>
+
+                    </ResponsiveContainer>
+                </div>
+            </div>
 
         </Card>
 
-    );
+);
 
 }
 

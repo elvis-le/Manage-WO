@@ -6,6 +6,7 @@ import {
     Input,
     Typography,
     ConfigProvider,
+    Grid,
 } from "antd";
 
 import {
@@ -20,6 +21,8 @@ import {
 const { Title } = Typography;
 
 function PendingTable({ rows }) {
+    const { useBreakpoint } = Grid;
+const screens = useBreakpoint();
 
     const [coordGroupFilter, setCoordGroupFilter] =
         useState("ALL");
@@ -255,6 +258,7 @@ function PendingTable({ rows }) {
             title: "Tên Nhân Viên",
             dataIndex: "employee",
             width: 180,
+    fixed: "left",
         },
 
         {
@@ -301,6 +305,7 @@ function PendingTable({ rows }) {
             style={{
                 marginTop: 24,
                 borderRadius: 16,
+        overflow: "hidden",
                 background: "#e1f4fa",
                 boxShadow:
                     "0 8px 24px rgba(0,0,0,0.08)",
@@ -308,7 +313,7 @@ function PendingTable({ rows }) {
         >
 
             <Title
-                level={4}
+                 level={screens.xs ? 5 : 4}
                 style={{
                     marginBottom: 20,
                 }}
@@ -316,20 +321,20 @@ function PendingTable({ rows }) {
                 WO Chưa Hoàn Thành
             </Title>
 
-            <Space
-                wrap
-                size="middle"
+            <div
                 style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 12,
                     marginBottom: 20,
-                    width: "100%",
-                    justifyContent:
-                        "space-between",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                 }}
             >
 
                 <Input
                     prefix={
-                        <SearchOutlined />
+                        <SearchOutlined/>
                     }
                     placeholder="Tìm kiếm..."
                     allowClear
@@ -340,7 +345,8 @@ function PendingTable({ rows }) {
                         )
                     }
                     style={{
-                        width: 340,
+                        width: "100%",
+                        maxWidth: 340,
                         background:
                             "#e1f4fa",
                         border:
@@ -358,7 +364,8 @@ function PendingTable({ rows }) {
                             setCoordGroupFilter
                         }
                         style={{
-                            width: 250,
+                            width: "100%",
+                            minWidth: 180,
                         }}
                     >
                         {coordGroups.map(
@@ -398,7 +405,7 @@ function PendingTable({ rows }) {
 
                 </Space>
 
-            </Space>
+            </div>
 
             <ConfigProvider
                 theme={{
@@ -421,7 +428,7 @@ function PendingTable({ rows }) {
                     columns={columns}
                     dataSource={tableData}
                     bordered
-                    size="middle"
+                    size="small"
                     pagination={{
                         pageSize: 12,
                         showSizeChanger: true,

@@ -5,7 +5,7 @@ import {
     Space,
     Input,
     Typography,
-    ConfigProvider,
+    ConfigProvider, Grid,
 } from "antd";
 
 import {
@@ -20,6 +20,9 @@ import {
 const { Title } = Typography;
 
 function EmployeeSummaryTable({ rows }) {
+
+    const { useBreakpoint } = Grid;
+const screens = useBreakpoint();
 
     const [coordGroupFilter, setCoordGroupFilter] =
         useState("ALL");
@@ -162,16 +165,10 @@ function EmployeeSummaryTable({ rows }) {
                 const now =
                     new Date();
 
-                const diffDay =
-                    (
-                        now - closeDate
-                    ) /
-                    (
-                        1000
-                        * 60
-                        * 60
-                        * 24
-                    );
+                const diffDay = Math.floor(
+    (now - closeDate) /
+    (1000 * 60 * 60 * 24)
+);
 
                 if (diffDay <= 5) {
 
@@ -216,6 +213,7 @@ function EmployeeSummaryTable({ rows }) {
             title: "Nhân viên",
             dataIndex: "employee",
             width: 220,
+    fixed: "left",
         },
 
         {
@@ -265,8 +263,8 @@ function EmployeeSummaryTable({ rows }) {
 
         <Card
             style={{
-                marginTop: 24,
                 borderRadius: 16,
+        overflow: "hidden",
                 background: "#e1f4fa",
                 boxShadow:
                     "0 8px 24px rgba(0,0,0,0.08)",
@@ -274,28 +272,28 @@ function EmployeeSummaryTable({ rows }) {
         >
 
             <Title
-                level={4}
+                level={screens.xs ? 5 : 4}
                 style={{
                     marginBottom: 20,
                 }}
             >
-                Tổng Hợp Theo Nhân Viên
+                Hiệu Suất Làm Việc FT
             </Title>
 
-            <Space
-                wrap
-                size="middle"
+            <div
                 style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 12,
                     marginBottom: 20,
-                    width: "100%",
-                    justifyContent:
-                        "space-between",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                 }}
             >
 
                 <Input
                     prefix={
-                        <SearchOutlined />
+                        <SearchOutlined/>
                     }
                     placeholder="Tìm kiếm..."
                     allowClear
@@ -306,7 +304,8 @@ function EmployeeSummaryTable({ rows }) {
                         )
                     }
                     style={{
-                        width: 340,
+    width: "100%",
+    maxWidth: 340,
                         background:
                             "#e1f4fa",
                         border:
@@ -322,7 +321,10 @@ function EmployeeSummaryTable({ rows }) {
                         setCoordGroupFilter
                     }
                     style={{
-                        width: 250,
+    width: "100%",
+    minWidth: 200,
+                        background: "#e1f4fa",
+                        border: "1px solid #18bdf0"
                     }}
                 >
                     {
@@ -339,7 +341,7 @@ function EmployeeSummaryTable({ rows }) {
                     }
                 </Select>
 
-            </Space>
+            </div>
 
             <ConfigProvider
                 theme={{
@@ -363,7 +365,7 @@ function EmployeeSummaryTable({ rows }) {
                     columns={columns}
                     dataSource={tableData}
                     bordered
-                    size="middle"
+                    size="small"
                     pagination={{
                         pageSize: 12,
                         showSizeChanger: true,
