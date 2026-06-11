@@ -199,8 +199,8 @@ const nearDuePercent =
                         value={priority}
                         onChange={setPriority}
                         style={{
-                            background: "#e1f4fa",
                             width: 220,
+                            background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
                         options={

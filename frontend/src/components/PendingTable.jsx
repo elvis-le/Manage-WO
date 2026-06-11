@@ -287,6 +287,10 @@ const screens = useBreakpoint();
     console.log(
   [...new Set(rows.map(x => x.coord_group))]
 );
+     console.log(
+  [...new Set(rows.map(x => x.coordGroups))]
+);
+
     return (
 
         <Card
@@ -355,6 +359,8 @@ const screens = useBreakpoint();
                             width: "100%",
                             minWidth: 180,
         fontFamily: "Arial",
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
                         }}
 
 

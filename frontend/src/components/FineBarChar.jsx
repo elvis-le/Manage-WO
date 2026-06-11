@@ -373,6 +373,8 @@ const screens = useBreakpoint();
                     style={{
                         width: "100%",
                         maxWidth: 250,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
                     }}
                 >
                     {provinces.map(
