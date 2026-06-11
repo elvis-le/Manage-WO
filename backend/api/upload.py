@@ -6,7 +6,6 @@ from rest_framework.response import Response
 from .models import (
     ImportBatch,
     WorkOrder,
-    WorkOrderSnapshot,
 )
 
 
@@ -68,7 +67,7 @@ def upload_excel(request):
             # SNAPSHOT
             # =====================
 
-            WorkOrderSnapshot.objects.create(
+            WorkOrder.objects.create(
 
                 batch=batch,
 

@@ -11,23 +11,15 @@ class ImportBatch(models.Model):
 
 
 class WorkOrder(models.Model):
-    wo_code = models.CharField(max_length=100, unique=True)
+    wo_code = models.CharField(
+        max_length=100,
+        db_index=True
+    )
 
-    class Meta:
-        db_table = "work_orders"
-
-
-class WorkOrderSnapshot(models.Model):
     batch = models.ForeignKey(
         ImportBatch,
         on_delete=models.CASCADE,
-        related_name="snapshots"
-    )
-
-    work_order = models.ForeignKey(
-        WorkOrder,
-        on_delete=models.CASCADE,
-        related_name="snapshots"
+        related_name="work_orders"
     )
 
     # Loại công việc
@@ -183,8 +175,11 @@ class WorkOrderSnapshot(models.Model):
         blank=True
     )
 
+    def __str__(self):
+        return self.wo_code
+
     class Meta:
-        db_table = "work_order_snapshots"
+        db_table = "work_orders"
 
         indexes = [
             models.Index(fields=["status"]),

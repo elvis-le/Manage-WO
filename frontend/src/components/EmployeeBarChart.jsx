@@ -304,6 +304,10 @@ function EmployeeBarChart({
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
+
+                        getPopupContainer={(trigger) =>
+                            trigger.parentElement
+                        }
                         onChange={(value) => {
 
                             setProvince(
@@ -337,6 +341,9 @@ function EmployeeBarChart({
                             background: "#e1f4fa",
                             border: "1px solid #18bdf0"
                         }}
+                        getPopupContainer={(trigger) =>
+                            trigger.parentElement
+                        }
                         onChange={
                             setGroup
                         }

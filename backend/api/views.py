@@ -5,7 +5,81 @@ from datetime import date, timedelta
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.http import JsonResponse
+from .models import WorkOrder
 
+
+@api_view(["GET"])
+def work_orders(request):
+
+    rows = []
+
+    for wo in WorkOrder.objects.all():
+
+        completed = (
+            wo.status in [
+                "Đóng",
+                "FT hoàn thành"
+            ]
+        )
+
+        pending = not completed
+
+        overdue = (
+            (wo.overdue_days or 0) > 0
+        )
+
+        near_due = (
+            pending
+            and (wo.remaining_hours or 0) > 0
+            and (wo.remaining_hours or 0) <= 24
+        )
+
+        rows.append({
+            "province": wo.province_code,
+            "priority": wo.priority_level,
+            "wo_group": wo.wo_group,
+            "coord_group": wo.dispatch_group,
+            "employee": wo.assignee,
+            "penalty": float(wo.penalty_amount or 0),
+
+            "close_time": (
+                wo.closed_at.isoformat()
+                if wo.closed_at
+                else None
+            ),
+
+            "work_type": wo.work_type,
+            "wo_status": wo.status,
+            "remain_hour": wo.remaining_hours or 0,
+            "overdue_day": wo.overdue_days or 0,
+
+            "wo_id": wo.wo_code,
+
+            "created_time": (
+                wo.created_at.isoformat()
+                if wo.created_at
+                else None
+            ),
+
+            "completed": completed,
+            "pending": pending,
+            "overdue": overdue,
+            "near_due": near_due,
+
+            "status": (
+                "completed"
+                if completed
+                else (
+                    "overdue"
+                    if overdue
+                    else "in_progress"
+                )
+            ),
+        })
+
+    return Response({
+        "rows": rows
+    })
 
 @api_view(["POST"])
 def upload_dashboard(request):
@@ -66,6 +140,8 @@ def upload_dashboard(request):
             ]
             or ft_completed
         )
+
+
 
         
         
@@ -148,6 +224,14 @@ def upload_dashboard(request):
                 == date.today() - timedelta(days=1)
             )
 
+            close_time = None
+
+            if pd.notna(row.get("Thời Điểm CD Đóng")):
+                close_time = row["Thời Điểm CD Đóng"]
+
+            elif pd.notna(row.get("Thời Điểm FT Hoàn Thành")):
+                close_time = row["Thời Điểm FT Hoàn Thành"]
+
         
         
 
@@ -221,6 +305,20 @@ def upload_dashboard(request):
                 else 0
             ),
 
+            "close_time": (
+    close_time.isoformat()
+    if close_time
+    else None
+),
+
+            "work_type": (
+                str(row["Loại Công Việc"])
+                if pd.notna(
+                    row.get("Loại Công Việc")
+                )
+                else ""
+            ),
+
             "wo_status":
                 wo_status,
 
@@ -290,6 +388,3 @@ def upload_dashboard(request):
         "rows": rows
     })
 
-
-def health(request):
-    return JsonResponse({"status": "ok"})

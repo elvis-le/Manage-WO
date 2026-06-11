@@ -1,4 +1,5 @@
-import {useState, useMemo} from "react";
+import {useState, useMemo, useEffect} from "react";
+import { getWorkOrders } from "../services/dashboardService";
 
 import {
     Row,
@@ -23,12 +24,30 @@ import EmployeeBarChart from "../components/EmployeeBarChart";
 import TopProvinceChart from "../components/TopProvinceChart";
 import PendingTable from "../components/PendingTable";
 import FineBarChart from "../components/FineBarChar.jsx";
+import UnderperformingHorizontalBarChart from "../components/UnderperformingHorizontalBarChart.jsx";
 
 const {Title, Text} = Typography;
 
-function Dashboard({
-                       rows,
-                   }) {
+function Dashboard() {
+
+    const [rows, setRows] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+    loadData();
+}, []);
+
+const loadData = async () => {
+    try {
+        const res = await getWorkOrders();
+
+        setRows(res.data.rows || []);
+    } catch (err) {
+        console.error(err);
+    } finally {
+        setLoading(false);
+    }
+};
 
     const [month, setMonth] =
         useState("ALL");
@@ -170,7 +189,23 @@ function Dashboard({
             province,
         ]);
 
+    if (loading) {
     return (
+        <div
+            style={{
+                minHeight: "100vh",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            }}
+        >
+            Loading...
+        </div>
+    );
+}
+
+    return (
+
 
         <div
             style={{
@@ -505,6 +540,13 @@ function Dashboard({
             {/*            rows={filteredRows}*/}
             {/*        />*/}
             {/*    </Col>*/}
+
+
+                <Col span={24}>
+                    <UnderperformingHorizontalBarChart
+                        rows={filteredRows}
+                    />
+                </Col>
 
             {/*</Row>*/}
 

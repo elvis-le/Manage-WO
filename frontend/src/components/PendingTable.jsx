@@ -111,6 +111,18 @@ if (
         result = result.filter(
             x =>
 
+                x.wo_id
+                    ?.toLowerCase()
+                    .includes(keyword)
+
+                ||
+
+                x.work_type
+                    ?.toLowerCase()
+                    .includes(keyword)
+
+                ||
+
                 x.employee
                     ?.toLowerCase()
                     .includes(keyword)
@@ -181,67 +193,22 @@ if (
 
         {
             title: "STT",
-            width: 70,
-            align: "center",
-            render: (_, __, index) =>
-                index + 1,
-            fixed: "left",
-        },
-
-        {
-            title: "Mã Tỉnh",
-            dataIndex: "province",
+            dataIndex: "wo_id",
             width: 110,
             align: "center",
         },
 
         {
-            title: "Ưu Tiên",
-            dataIndex: "priority",
-            width: 140,
+            title: "Mã Tỉnh",
+            dataIndex: "province",
+            width: 80,
             align: "center",
-            render: value => {
+        },
 
-                if (
-                    value ===
-                    "Nghiêm trọng"
-                ) {
-                    return (
-                        <Tag color="red">
-                            {value}
-                        </Tag>
-                    );
-                }
-
-                if (
-                    value ===
-                    "Cao"
-                ) {
-                    return (
-                        <Tag color="volcano">
-                            {value}
-                        </Tag>
-                    );
-                }
-
-                if (
-                    value ===
-                    "Trung bình"
-                ) {
-                    return (
-                        <Tag color="gold">
-                            {value}
-                        </Tag>
-                    );
-                }
-
-                return (
-                    <Tag color="blue">
-                        {value}
-                    </Tag>
-                );
-
-            },
+        {
+            title: "Loại Công Việc",
+            dataIndex: "work_type",
+            width: 260,
         },
 
         {
@@ -249,7 +216,7 @@ if (
                 "Nhóm Điều Phối",
             dataIndex:
                 "coord_group",
-            width: 320,
+            width: 200,
         },
 
         {
@@ -257,7 +224,7 @@ if (
                 "Nhóm WO",
             dataIndex:
                 "wo_group",
-            width: 130,
+            width: 90,
             align: "center",
         },
 
@@ -266,14 +233,14 @@ if (
                 "Nhân Viên",
             dataIndex:
                 "employee",
-            width: 170,
+            width: 100,
         },
         {
             title:
                 "TG Còn Lại (h)",
             dataIndex:
                 "remain_hour",
-            width: 140,
+            width: 90,
             align: "center",
             render: value => (
                 <span
@@ -291,13 +258,13 @@ if (
                 "Ngày Quá Hạn",
             dataIndex:
                 "overdue_day",
-            width: 140,
+            width: 80,
             align: "center",
         },
 
         {
     title: "Trạng Thái SLA",
-    width: 150,
+    width: 100,
     align: "center",
     render: (_, row) => {
 
@@ -439,8 +406,8 @@ if (
                         }}
                     >
 
-                        <Select.Option value="priority">
-                            Ưu tiên cao nhất
+                        <Select.Option value="none">
+                            None
                         </Select.Option>
 
                         <Select.Option value="remain_hour">
