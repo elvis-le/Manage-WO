@@ -318,201 +318,52 @@ const screens = useBreakpoint();
     }
 
     return (
+        <Card bordered={false} style={{ marginTop: 0, borderRadius: 18, background: "#e1f4fa", boxShadow: "0 12px 32px rgba(0,0,0,.15)" }} bodyStyle={{ padding: screens.xs ? 12 : 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: screens.xs ? "stretch" : "center", marginBottom: 20, flexDirection: screens.xs ? "column" : "row", gap: 16 }}>
 
-        <Card
-            bordered={false}
-            style={{
-                marginTop: 0,
-                borderRadius: 18,
-                background: "#e1f4fa",
-                boxShadow:
-                    "0 12px 32px rgba(0,0,0,.15)",
-            }}
-        >
-
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent:
-                        "space-between",
-                    alignItems: "center",
-                    marginBottom: 20,
-                    flexWrap: "wrap",
-                    gap: 10,
-                }}
-            >
-
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                    }}
-                >
-                    <div
-                        style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: 8,
-                            color: "#fbbf24",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                        }}
-                    >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, color: "#fbbf24", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <TrophyOutlined/>
                     </div>
-
                     <div>
-                        <div
-                            style={{
-                                fontWeight: 700,
-                                fontSize:
-    screens.xs
-        ? 16
-        : 24,
-                            }}
-                        >
-                            {title}
-                        </div>
-
-                        <div
-                            style={{
-                                color: "#64748b",
-                                fontSize: 13,
-                            }}
-                        >
-                            Đang xếp hạng giữa các Tỉnh thành
-                        </div>
+                        <div style={{ fontWeight: 700, fontSize: screens.xs ? 16 : 24 }}>{title}</div>
+                        <div style={{ color: "#64748b", fontSize: 13 }}>Đang xếp hạng giữa các Tỉnh thành</div>
                     </div>
                 </div>
 
-                <Space wrap>
-
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 10, width: screens.xs ? "100%" : "auto" }}>
                     <Select
-
-                        suffixIcon={
-                            <FilterOutlined
-                                style={{
-                                    color: "#94a3b8",
-                                }}
-                            />
-                        }
+                        suffixIcon={<FilterOutlined style={{ color: "#94a3b8" }} />}
                         value={metric}
                         onChange={setMetric}
-                        style={{
-    width: "100%",
-    maxWidth: 180,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
+                        style={{ flex: screens.xs ? "1 1 100%" : "none", width: screens.xs ? "100%" : 160, background: "#e1f4fa", border: "1px solid #18bdf0" }}
                     >
-                        <Select.Option value="pending">
-                            Tồn
-                        </Select.Option>
-
-                        <Select.Option value="overdue">
-                            Quá hạn
-                        </Select.Option>
-
-                        <Select.Option value="ontime">
-                            Tỷ lệ đúng hạn
-                        </Select.Option>
-
+                        <Select.Option value="pending">Tồn</Select.Option>
+                        <Select.Option value="overdue">Quá hạn</Select.Option>
+                        <Select.Option value="ontime">Tỷ lệ đúng hạn</Select.Option>
                     </Select>
 
                     <Select
-                        suffixIcon={
-                            <FilterOutlined
-                                style={{
-                                    color: "#94a3b8",
-                                }}
-                            />
-                        }
+                        suffixIcon={<FilterOutlined style={{ color: "#94a3b8" }} />}
                         value={province}
-                        style={{
-    width: "100%",
-    maxWidth: 180,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
-                        onChange={value => {
-
-                            setProvince(
-                                value
-                            );
-
-                            setWoGroup(
-                                "ALL"
-                            );
-
-                        }}
+                        style={{ flex: screens.xs ? "1 1 100%" : "none", width: screens.xs ? "100%" : 150, background: "#e1f4fa", border: "1px solid #18bdf0" }}
+                        onChange={value => { setProvince(value); setWoGroup("ALL"); }}
                     >
-
-                        {provinces.map(
-                            p => (
-
-                                <Select.Option
-                                    key={p}
-                                    value={p}
-                                >
-                                    {p}
-                                </Select.Option>
-
-                            )
-                        )}
-
+                        {provinces.map(p => <Select.Option key={p} value={p}>{p}</Select.Option>)}
                     </Select>
 
                     <Select
-                        suffixIcon={
-                            <FilterOutlined
-                                style={{
-                                    color: "#94a3b8",
-                                }}
-                            />
-                        }
+                        suffixIcon={<FilterOutlined style={{ color: "#94a3b8" }} />}
                         value={woGroup}
-                        style={{
-    width: "100%",
-    maxWidth: 220,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
-                        onChange={
-                            setWoGroup
-                        }
+                        style={{ flex: screens.xs ? "1 1 100%" : "none", width: screens.xs ? "100%" : 160, background: "#e1f4fa", border: "1px solid #18bdf0" }}
+                        onChange={setWoGroup}
                     >
-
-                        {woGroups.map(
-                            g => (
-
-                                <Select.Option
-                                    key={g}
-                                    value={g}
-                                >
-                                    {g}
-                                </Select.Option>
-
-                            )
-                        )}
-
+                        {woGroups.map(g => <Select.Option key={g} value={g}>{g}</Select.Option>)}
                     </Select>
-
-                </Space>
-
+                </div>
             </div>
 
-            <div
-                style={{
-                    maxHeight:
-    screens.xs
-        ? 350
-        : 520,
-                    overflowY: "auto",
-                    paddingRight: 8,
-                }}
-            >
+            <div style={{ maxHeight: screens.xs ? 350 : 520, overflowY: "auto", paddingRight: 8 }}>
                 {chartData.map(
                     (item, index) => {
                         const maxValue =

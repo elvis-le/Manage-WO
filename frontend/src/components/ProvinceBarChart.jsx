@@ -114,254 +114,205 @@ const screens = useBreakpoint();
 ]);
 
     return (
-
         <Card
             bordered={false}
             style={{
                 marginTop: 0,
                 borderRadius: 18,
                 background: "#e1f4fa",
-                boxShadow:
-                    "0 12px 32px rgba(0,0,0,.15)",
+                boxShadow: "0 12px 32px rgba(0,0,0,.15)",
+                overflow: "hidden" // Đảm bảo content không tràn ra ngoài viền bo góc
             }}
         >
-
+            {/* PHẦN HEADER: TITLE VÀ BỘ LỌC */}
             <div
                 style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center",
-                    flexWrap: "wrap",
+                    alignItems: screens.sm ? "center" : "flex-start", // Mobile thì căn trên, PC căn giữa
+                    flexDirection: screens.sm ? "row" : "column", // Mobile cho bộ lọc rớt xuống hàng dọc
                     gap: 16,
                     marginBottom: 24,
                 }}
             >
-
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 12,
-                    }}
-                >
+                {/* Title Section */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div
                         style={{
-                            width: 36,
-                            height: 36,
+                            width: screens.xs ? 32 : 36,
+                            height: screens.xs ? 32 : 36,
                             borderRadius: 8,
                             color: "#7cb3f2",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
+                            background: "#cce5ff" // Thêm chút nền cho icon nổi bật
                         }}
                     >
-                        <FundProjectionScreenOutlined/>
+                        <FundProjectionScreenOutlined style={{ fontSize: screens.xs ? 18 : 20 }}/>
                     </div>
 
                     <div>
-                        <div
-                            style={{
-                                fontSize: screens.xs ? 16 : 22,
-                                fontWeight: 700,
-                            }}
-                        >
+                        <div style={{ fontSize: screens.xs ? 18 : 22, fontWeight: 700, color: "#0f172a" }}>
                             Tổng mức tồn khu vực
                         </div>
-
-                        <div
-                            style={{
-                                color: "#64748b",
-                                fontSize: 13,
-                            }}
-                        >
+                        <div style={{ color: "#64748b", fontSize: screens.xs ? 12 : 13 }}>
                             Sắp xếp thứ tự theo tổng Work Order
                         </div>
                     </div>
                 </div>
 
+                {/* Filter Section */}
                 <Select
-                    suffixIcon={
-                        <FilterOutlined
-                            style={{
-                                color: "#94a3b8",
-                            }}
-                        />
-                    }
+                    suffixIcon={<FilterOutlined style={{ color: "#94a3b8" }} />}
                     mode="multiple"
                     allowClear
-                    size="large"
+                    size={screens.xs ? "middle" : "large"} // Nút nhỏ hơn một chút trên mobile
                     placeholder="Tất cả tỉnh"
-                    value={
-                        selectedProvinces
-                    }
-                    onChange={
-                        setSelectedProvinces
-                    }
+                    value={selectedProvinces}
+                    onChange={setSelectedProvinces}
                     maxTagCount="responsive"
                     style={{
-    width: "100%",
-    maxWidth: screens.xs ? "100%" : 300,
+                        width: "100%",
+                        maxWidth: screens.sm ? 300 : "100%", // Full width trên mobile, giới hạn trên PC
                         background: "#e1f4fa",
-                        border: "1px solid #18bdf0"
                     }}
                     popupMatchSelectWidth={false}
                 >
-
-                    {
-                        provinces.map(
-                            p => (
-
-                                <Select.Option
-                                    key={p}
-                                    value={p}
-                                >
-                                    {p}
-                                </Select.Option>
-
-                            )
-                        )
-                    }
-
+                    {provinces.map((p) => (
+                        <Select.Option key={p} value={p}>
+                            {p}
+                        </Select.Option>
+                    ))}
                 </Select>
-
             </div>
 
-            <ResponsiveContainer
-                width="100%"
-    height={screens.xs ? 300 : 450}
-            >
-
-                <BarChart
-                    data={chartData}
-                    margin={{
-                        top: 20,
-                        right: 20,
-                        left: 10,
-                        bottom: 10,
-                    }}
+            {/* PHẦN BIỂU ĐỒ */}
+            <div style={{ width: '100%', overflowX: 'auto' }}>
+                {/* Dùng div bọc ngoài để dự phòng trường hợp có quá nhiều tỉnh trên mobile */}
+                <ResponsiveContainer
+                    width={screens.xs && chartData.length > 10 ? chartData.length * 40 : "100%"} // Tự động kéo dài width nếu quá nhiều data trên mobile để scroll ngang
+                    height={screens.xs ? 350 : 450}
                 >
-
-                    <CartesianGrid
-                        stroke="#1e293b"
-                        strokeDasharray="3 3"
-                    />
-
-                    <XAxis
-                        dataKey="province"
-    angle={-45}
-    textAnchor="end"
-    height={80}
-                        tick={{
-                            fill: "#94a3b8",
-                            fontSize: 12,
-                        }}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-
-                    <YAxis
-                        tick={{
-                            fill: "#64748b",
-                            fontSize: 12,
-                        }}
-                        tickLine={false}
-                        axisLine={false}
-                    />
-
-                    <Tooltip
-                        contentStyle={{
-                            background: "#111827",
-                            border: "1px solid #1e293b",
-                            borderRadius: 12,
-                        }}
-                        labelStyle={{
-                            color: "#fff",
-                        }}
-                        itemStyle={{
-                            color: "#fff",
-                        }}
-                    />
-
-                    <Legend
-                        verticalAlign="top"
-                        align="center"
-                        iconType="circle"
-                        wrapperStyle={{
-        fontSize: 12,
-                            fontWeight: 600,
-                            paddingBottom: 20,
-                        }}
-                    />
-
-                    <Bar
-                        dataKey="completed"
-                        stackId="a"
-                        name="Đã hoàn thành"
-                        fill="#1fc48d"
-                        radius={[4, 4, 0, 0]}
+                    <BarChart
+                        data={chartData}
+                        margin={{ top: 20, right: screens.xs ? 0 : 20, left: screens.xs ? -20 : 10, bottom: 20 }}
                     >
-                        <LabelList
+                        <CartesianGrid stroke="#cbd5e1" strokeDasharray="3 3" vertical={false} />
+
+                        <XAxis
+                            dataKey="province"
+                            angle={-45}
+                            textAnchor="end"
+                            height={80}
+                            interval={screens.xs ? "preserveStartEnd" : 0} // Mobile: Ẩn bớt text trục X nếu quá chật
+                            tick={{ fill: "#64748b", fontSize: screens.xs ? 10 : 12, fontWeight: 500 }}
+                            tickLine={false}
+                            axisLine={{ stroke: "#94a3b8" }}
+                        />
+
+                        <YAxis
+                            tick={{ fill: "#64748b", fontSize: screens.xs ? 10 : 12 }}
+                            tickLine={false}
+                            axisLine={false}
+                        />
+
+                        <Tooltip
+                            cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
+                            contentStyle={{
+                                background: "#1e293b",
+                                border: "none",
+                                borderRadius: 8,
+                                color: "#f8fafc",
+                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                            }}
+                            itemStyle={{ color: "#e2e8f0", fontSize: 13 }}
+                            labelStyle={{ color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}
+                        />
+
+                        <Legend
+                            verticalAlign="top"
+                            align="center"
+                            iconType="circle"
+                            wrapperStyle={{
+                                fontSize: screens.xs ? 11 : 13,
+                                fontWeight: 600,
+                                paddingBottom: 20,
+                                color: "#334155"
+                            }}
+                        />
+
+                        {/* Bar: Đã hoàn thành */}
+                        <Bar
                             dataKey="completed"
-                            position="center"
-                            fill="#000000"
-    fontSize={10}
-                            fontWeight={600}
-                        />
-                    </Bar>
+                            stackId="a"
+                            name="Đã hoàn thành"
+                            fill="#1fc48d"
+                            radius={[0, 0, 0, 0]}
+                            barSize={screens.xs ? 20 : 35} // Chỉnh độ rộng cột cho mobile
+                        >
+                            <LabelList
+                                dataKey="completed"
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11} // Ẩn label bên trong cột trên mobile để tránh tràn text
+                                fontWeight={600}
+                            />
+                        </Bar>
 
-                    <Bar
-                        dataKey="processing"
-                        stackId="a"
-                        name="Đang xử lý"
-                        fill="#4285f4"
-                        radius={[4, 4, 0, 0]}
-                    >
-                        <LabelList
+                        {/* Bar: Đang xử lý */}
+                        <Bar
                             dataKey="processing"
-                            position="center"
-                            fill="#000000"
-    fontSize={10}
-                            fontWeight={600}
-                        />
-                        <LabelList
-    dataKey="processingTotal"
-    position="top"
-    fill="#000000"
-    fontSize={13}
-    fontWeight={700}
-/>
-                    </Bar>
+                            stackId="a"
+                            name="Đang xử lý"
+                            fill="#3b82f6"
+                            radius={[0, 0, 0, 0]}
+                        >
+                            <LabelList
+                                dataKey="processing"
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11}
+                                fontWeight={600}
+                            />
+                            <LabelList
+                                dataKey="processingTotal"
+                                position="top"
+                                fill="#334155"
+                                fontSize={screens.xs ? 11 : 13} // Tổng số hiện trên cùng nên giữ lại trên mobile
+                                fontWeight={700}
+                                offset={10}
+                            />
+                        </Bar>
 
-
-                    <Bar
-                        dataKey="overdue"
-                        stackId="a"
-                        name="Quá hạn trễ"
-                        fill="#ff4d57"
-                        radius={[4, 4, 0, 0]}
-                    >
-                        <LabelList
+                        {/* Bar: Quá hạn trễ */}
+                        <Bar
                             dataKey="overdue"
-                            position="center"
-                            fill="#000000"
-    fontSize={10}
-                            fontWeight={600}
-                        />
-                        <LabelList
-        dataKey="total"
-        position="top"
-        fill="#000000"
-        fontSize={13}
-        fontWeight={700}
-    />
-                    </Bar>
-
-                </BarChart>
-
-            </ResponsiveContainer>
-
+                            stackId="a"
+                            name="Quá hạn trễ"
+                            fill="#ef4444"
+                            radius={[4, 4, 0, 0]} // Bo góc ở Bar trên cùng
+                        >
+                            <LabelList
+                                dataKey="overdue"
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11}
+                                fontWeight={600}
+                            />
+                            <LabelList
+                                dataKey="total"
+                                position="top"
+                                fill="#334155"
+                                fontSize={screens.xs ? 11 : 13}
+                                fontWeight={700}
+                                offset={10}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </Card>
-
     );
 
 }

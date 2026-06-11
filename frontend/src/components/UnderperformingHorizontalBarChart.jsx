@@ -946,381 +946,245 @@ if (totalWO >= 25) {
 
 
     return (
-
         <Card
-
+            bordered={false}
             style={{
-
-                borderRadius: 16,
-
+                borderRadius: 18,
                 background: "#e1f4fa",
-                boxShadow:
-                    "0 8px 24px rgba(0,0,0,0.08)",
+                boxShadow: "0 12px 32px rgba(0,0,0,.15)",
+                overflow: "hidden",
             }}
->
-
-
+            bodyStyle={{ padding: screens.xs ? 16 : 24 }}
+        >
+            {/* PHẦN HEADER: TIÊU ĐỀ VÀ BỘ LỌC */}
             <div
-    style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: 12,
-        marginBottom: 20,
-    }}
->
-
-    <div
-        style={{
-            fontSize: 20,
-            fontWeight: 700,
-        }}
-    >
-        {title}
-    </div>
-    <Space wrap>
-
-                    <Select
-
-                        value={
-                            province
-                        }
-
-                        style={{
-        width: "100%",
-        minWidth: 140,
-        maxWidth: 200,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
-
-                        onChange={
-                            value => {
-
-                                setProvince(
-                                    value
-                                );
-
-                                setGroup(
-                                    "ALL"
-                                );
-                            }
-                        }
-
-                        options={provinces.map(
-                            p => ({
-                                label:
-                                    p,
-                                value:
-                                    p,
-                            })
-                        )}
-
-                    />
-
-                    <Select
-
-                        value={
-                            group
-                        }
-
-                        style={{
-        width: "100%",
-        minWidth: 140,
-        maxWidth: 220,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
-
-                        onChange={
-                            setGroup
-                        }
-
-                        options={groups.map(
-                            g => ({
-                                label:
-                                    g,
-                                value:
-                                    g,
-                            })
-                        )}
-
-                    />
-
-                </Space>
-
-            </div>
-
-            {/* KPI CARDS */}
-
-            <Row
-                gutter={16}
                 style={{
-                    marginBottom: 20,
+                    display: "flex",
+                    flexDirection: screens.sm ? "row" : "column",
+                    justifyContent: "space-between",
+                    alignItems: screens.sm ? "center" : "flex-start",
+                    gap: 16,
+                    marginBottom: 24,
                 }}
             >
+                <div
+                    style={{
+                        fontSize: screens.xs ? 18 : 22,
+                        fontWeight: 700,
+                        color: "#0f172a",
+                    }}
+                >
+                    {title}
+                </div>
 
-                <Col
-    xs={24}
-    sm={12}
->
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: screens.xs ? "column" : "row",
+                        gap: 12,
+                        width: screens.sm ? "auto" : "100%",
+                    }}
+                >
+                    <Select
+                        value={province}
+                        size={screens.xs ? "middle" : "large"}
+                        style={{
+                            width: screens.xs ? "100%" : 200,
+                            background: "#e1f4fa",
+                        }}
+                        onChange={(value) => {
+                            setProvince(value);
+                            setGroup("ALL");
+                        }}
+                        options={provinces.map((p) => ({
+                            label: p,
+                            value: p,
+                        }))}
+                    />
 
+                    <Select
+                        value={group}
+                        size={screens.xs ? "middle" : "large"}
+                        style={{
+                            width: screens.xs ? "100%" : 220,
+                            background: "#e1f4fa",
+                        }}
+                        onChange={setGroup}
+                        options={groups.map((g) => ({
+                            label: g,
+                            value: g,
+                        }))}
+                    />
+                </div>
+            </div>
+
+            {/* PHẦN KPI CARDS */}
+            <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                <Col xs={24} sm={12}>
                     <Card
                         size="small"
-                style={{
-                background: "#e1f4fa",
-                boxShadow:
-                    "0 12px 32px rgba(0,0,0,.15)",
-
-                            border: "1px solid #18bdf0"
-                }}
+                        bordered={false}
+                        style={{
+                            background: "rgba(59, 130, 246, 0.1)", // Nền xanh nhạt hiện đại
+                            borderRadius: 12,
+                        }}
                     >
-
                         <Statistic
-                            title="Tổng NV năng suất kém"
-                            value={
-                                totalBadEmployees
-                            }
+                            title={<span style={{ color: "#475569", fontWeight: 500 }}>Tổng NV năng suất kém</span>}
+                            value={totalBadEmployees}
+                            valueStyle={{ color: "#2563eb", fontWeight: 700 }}
                         />
-
                     </Card>
-
                 </Col>
 
-                <Col
-    xs={24}
-    sm={12}
->
-
+                <Col xs={24} sm={12}>
                     <Card
                         size="small"
-                style={{
-                background: "#e1f4fa",
-                boxShadow:
-                    "0 12px 32px rgba(0,0,0,.15)",
-
-                            border: "1px solid #18bdf0"
-                }}
+                        bordered={false}
+                        style={{
+                            background: "rgba(245, 158, 11, 0.1)", // Nền cam nhạt
+                            borderRadius: 12,
+                        }}
                     >
-
                         <Statistic
-                            title="TB WO/ngày"
-                            value={
-                                averageProductivity
-                            }
-                            precision={
-                                2
-                            }
+                            title={<span style={{ color: "#475569", fontWeight: 500 }}>TB WO/ngày</span>}
+                            value={averageProductivity}
+                            precision={2}
+                            valueStyle={{ color: "#d97706", fontWeight: 700 }}
                         />
-
                     </Card>
-
                 </Col>
-
             </Row>
 
-            <div
-                style={{
-                    marginBottom: 20,
-                }}
-            >
-
-                <Text
-                    strong
-                >
-
+            {/* PHẦN NGÀY THÁNG */}
+            <div style={{ marginBottom: 24 }}>
+                <Text strong style={{ color: "#334155", display: "block", marginBottom: 8 }}>
                     5 ngày làm việc gần nhất:
-
                 </Text>
-
-                <br />
-
-                <Space
-                    wrap
-                    style={{
-                        marginTop: 8,
-                    }}
-                >
-
-                    {last5Days.map(
-                        d => (
-
-                            <Tag
-                                key={d}
-                                color="cyan"
-                            >
-                                {d}
-                            </Tag>
-                        )
-                    )}
-
-                </Space>
-
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {last5Days.map((d) => (
+                        <Tag
+                            key={d}
+                            color="cyan"
+                            style={{ margin: 0, padding: "4px 10px", fontSize: screens.xs ? 11 : 12, borderRadius: 6 }}
+                        >
+                            {d}
+                        </Tag>
+                    ))}
+                </div>
             </div>
 
-            {/* CHART */}
-
-            <ResponsiveContainer
-
-                width="100%"
-
-                height={
-    screens.xs
-        ? Math.max(
-              250,
-              chartData.length * 32
-          )
-        : Math.max(
-              450,
-              chartData.length * 42
-          )
-}
-            >
-
-                <BarChart
-
-                    layout="vertical"
-
-                    data={
-                        chartData
-                    }
-
-                    margin={{
-
-                        top: 10,
-
-                        right: 40,
-
-                        left: 0,
-
-                        bottom: 10,
-                    }}
+            {/* PHẦN BIỂU ĐỒ (Thanh ngang) */}
+            <div style={{ width: "100%", overflowX: "auto" }}>
+                <ResponsiveContainer
+                    width="100%"
+                    // Tính toán động chiều cao: Càng nhiều dòng thì biểu đồ càng dài xuống dưới
+                    height={Math.max(screens.xs ? 300 : 450, chartData.length * (screens.xs ? 40 : 50))}
                 >
-
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                    />
-
-                    <XAxis
-                        type="number"
-                    />
-
-                    <YAxis
-    type="category"
-    dataKey="name"
-    width={
-        screens.xs
-            ? 90
-            : 140
-    }
-/>
-
-                    <Tooltip
-
-                        formatter={(
-                            value
-                        ) => [
-
-                            value,
-
-                            province ===
-                                "ALL" &&
-                            group ===
-                                "ALL"
-
-                                ? "Số NV"
-
-                                : province !==
-                                      "ALL" &&
-                                  group ===
-                                      "ALL"
-
-                                ? "Số NV"
-
-                                : "TB WO/ngày",
-                        ]}
-                    />
-
-                    <Bar
-
-                        dataKey="value"
-
-                        fill="#1890ff"
-
-                        radius={[
-                            0,
-                            8,
-                            8,
-                            0,
-                        ]}
+                    <BarChart
+                        layout="vertical"
+                        data={chartData}
+                        margin={{
+                            top: 10,
+                            right: screens.xs ? 30 : 40, // Chừa khoảng trống bên phải để vẽ Nhãn LabelList
+                            left: screens.xs ? -10 : 0,
+                            bottom: 10,
+                        }}
                     >
+                        <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#cbd5e1" />
 
-                        <LabelList
-    dataKey="value"
-    position="right"
-    fontSize={
-        screens.xs
-            ? 10
-            : 12
-    }
-/>
+                        <XAxis
+                            type="number"
+                            tick={{ fontSize: screens.xs ? 10 : 12, fill: "#64748b" }}
+                            axisLine={{ stroke: "#94a3b8" }}
+                            tickLine={false}
+                        />
 
-                    </Bar>
+                        <YAxis
+                            type="category"
+                            dataKey="name"
+                            width={screens.xs ? 100 : 150} // Dành đủ không gian bên trái cho Tên/Tỉnh
+                            tick={{ fontSize: screens.xs ? 10 : 12, fill: "#334155", fontWeight: 500 }}
+                            axisLine={false}
+                            tickLine={false}
+                        />
 
-                </BarChart>
+                        <Tooltip
+                            cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
+                            contentStyle={{
+                                background: "#1e293b",
+                                border: "none",
+                                borderRadius: 8,
+                                color: "#f8fafc",
+                            }}
+                            itemStyle={{ color: "#e2e8f0", fontSize: 13 }}
+                            labelStyle={{ color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}
+                            formatter={(value) => [
+                                value,
+                                province === "ALL" && group === "ALL"
+                                    ? "Số NV"
+                                    : province !== "ALL" && group === "ALL"
+                                    ? "Số NV"
+                                    : "TB WO/ngày",
+                            ]}
+                        />
 
-            </ResponsiveContainer>
+                        <Bar
+                            dataKey="value"
+                            fill="#3b82f6"
+                            radius={[0, 6, 6, 0]} // Chỉ bo tròn góc bên phải
+                            barSize={screens.xs ? 20 : 28} // Độ dày của thanh ngang
+                        >
+                            <LabelList
+                                dataKey="value"
+                                position="right"
+                                fill="#0f172a"
+                                fontSize={screens.xs ? 10 : 12}
+                                fontWeight={600}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
 
-            {/* TABLE */}
-<ConfigProvider
+            {/* PHẦN BẢNG TỔNG HỢP (TABLE) */}
+            <ConfigProvider
                 theme={{
                     components: {
                         Table: {
-                            headerBg:
-                                "#e1f4fa",
-                            colorBgContainer:
-                                "#e1f4fa",
-                            rowHoverBg:
-                                "#e1f4fa",
-                            borderColor:
-                                "#18bdf0",
+                            headerBg: "#bae6fd", // Đồng bộ màu header bảng xanh nhạt
+                            colorBgContainer: "#ffffff", // Nền bảng trắng để dễ đọc dữ liệu
+                            rowHoverBg: "#f1f5f9",
+                            borderColor: "#cbd5e1",
+                            borderRadius: 8,
                         },
                     },
                 }}
             >
-            <Table
-
-                rowKey="key"
-
-                columns={
-                    columns
-                }
-
-                dataSource={
-                    tableData
-                }
-
-                bordered
-
-                size="small"
-
-                pagination={{
-    pageSize: 10,
-    showSizeChanger: false,
-}}
-
-                scroll={{
-                    x: "max-content",
-                }}
-
-                style={{
-                    marginTop: 24,
-                background: "#e1f4fa",
-                }}
-            />
-</ConfigProvider>
-
+                <div
+                    style={{
+                        marginTop: 24,
+                        borderRadius: 8,
+                        overflow: "hidden", // Cắt góc bo tròn của bảng
+                        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)"
+                    }}
+                >
+                    <Table
+                        rowKey="key"
+                        columns={columns}
+                        dataSource={tableData}
+                        size={screens.xs ? "small" : "middle"} // Bảng nhỏ lại trên mobile
+                        pagination={{
+                            pageSize: 10,
+                            showSizeChanger: false,
+                            responsive: true,
+                        }}
+                        scroll={{
+                            x: "max-content", // Bắt buộc giữ để bảng có thanh cuộn ngang khi quá nhiều cột
+                        }}
+                    />
+                </div>
+            </ConfigProvider>
         </Card>
     );
 };

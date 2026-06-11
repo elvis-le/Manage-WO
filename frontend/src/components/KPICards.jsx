@@ -147,155 +147,93 @@ const percent = value =>
 ];
 
   return (
-
-    <Row
-      gutter={[16, 16]}
-    >
-
-      {cards.map(
-        (
-          card,
-          index
-        ) => (
-
-          <Col
-            key={index}
-            xs={24}
-            sm={12}
-            md={8}
-            lg={6}
-            // xl={6}
+    <Row gutter={[16, 16]}>
+      {cards.map((card, index) => (
+        <Col key={index} xs={24} sm={12} md={8} lg={6}>
+          <Card
+            hoverable
+            style={{
+              minHeight: screens.xs ? 120 : 135, // Giảm chiều cao tối thiểu trên điện thoại
+              height: "100%",
+              borderRadius: 16,
+              border: "1px solid #d9f2ff",
+              background: "#ebf8fc",
+              boxShadow: "0 6px 16px rgba(0,0,0,.08)",
+            }}
+            bodyStyle={{
+              padding: screens.xs ? 16 : 20, // Thu nhỏ lề trong (padding) trên mobile
+            }}
           >
-
-            <Card
-              hoverable
+            <div
               style={{
-    minHeight: 135,
-    height: "100%",
-                borderRadius: 16,
-                border:
-                  "1px solid #d9f2ff",
-                background:
-                  "#ebf8fc",
-                boxShadow:
-                  "0 6px 16px rgba(0,0,0,.08)",
-              }}
-              bodyStyle={{
-                padding: 20,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                height: "100%",
+                gap: 10,
               }}
             >
+              <div>
+                <div
+                  style={{
+                    fontSize: screens.xs ? 13 : 14, // Nhỏ font chữ tiêu đề lại 1 xíu trên mobile
+                    color: "#666",
+                    marginBottom: 8,
+                    fontWeight: 500,
+                  }}
+                >
+                  {card.title}
+                </div>
+
+                <Statistic
+                  value={card.value}
+                  suffix={card.suffix}
+                  valueStyle={{
+                    color: card.color,
+                    fontWeight: 700,
+                    fontSize: screens.xs ? 22 : 26, // Chỉnh lại font size số đếm cho hài hòa
+                  }}
+                />
+              </div>
 
               <div
                 style={{
-                  display:
-                    "flex",
-                  justifyContent:
-                    "space-between",
-                  alignItems:
-                    "center",
-                  height:
-                    "100%",
-    gap: 10,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 6,
                 }}
               >
-
-                <div>
-
-                  <div
-                    style={{
-                      fontSize: 14,
-                      color:
-                        "#666",
-                      marginBottom:
-                        8,
-                      fontWeight:
-                        500,
-                    }}
-                  >
-                    {
-                      card.title
-                    }
-                  </div>
-
-                  <Statistic
-                    value={
-                      card.value
-                    }
-                    suffix={
-                      card.suffix
-                    }
-                    valueStyle={{
-    color: card.color,
-    fontWeight: 700,
-    fontSize: screens.xs ? 20 : 26,
-  }}
-                  />
-
-                </div>
-
                 <div
                   style={{
-                    display:
-                      "flex",
-                    flexDirection:
-                      "column",
-                    alignItems:
-                      "center",
-                    gap: 6,
+                    width: screens.xs ? 36 : 42, // Thu nhỏ vòng tròn icon
+                    height: screens.xs ? 36 : 42,
+                    borderRadius: "50%",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    color: card.color,
+                    fontSize: screens.xs ? 20 : 24, // Thu nhỏ icon
                   }}
                 >
-
-                  <div
-                    style={{
-                      width: 42,
-                      height: 42,
-                      borderRadius:
-                        "50%",
-                      display:
-                        "flex",
-                      justifyContent:
-                        "center",
-                      alignItems:
-                        "center",
-                      color:
-                        card.color,
-                      fontSize:
-                        24,
-                    }}
-                  >
-                    {
-                      card.icon
-                    }
-                  </div>
-
-                  <span
-                    style={{
-                      color:
-                        card.color,
-                      fontSize:
-                        18,
-                      fontWeight:
-                        700,
-                    }}
-                  >
-                    {
-                      card.percent
-                    }%
-                  </span>
-
+                  {card.icon}
                 </div>
 
+                <span
+                  style={{
+                    color: card.color,
+                    fontSize: screens.xs ? 14 : 18, // Thu nhỏ %
+                    fontWeight: 700,
+                  }}
+                >
+                  {card.percent}%
+                </span>
               </div>
-
-            </Card>
-
-          </Col>
-
-        )
-      )}
-
+            </div>
+          </Card>
+        </Col>
+      ))}
     </Row>
-
   );
 
 }

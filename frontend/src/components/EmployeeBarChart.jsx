@@ -254,323 +254,231 @@ const screens = useBreakpoint();
 
     }, []);
 
-    return (
+    // --- Các phần import và logic state/calculations ở trên giữ nguyên ---
 
+    return (
         <Card
             ref={chartRef}
+            bordered={false}
             style={{
                 marginTop: 0,
-                borderRadius: fullscreen ? 0 : 16,
+                borderRadius: fullscreen ? 0 : 18,
                 background: "#e1f4fa",
-                boxShadow:
-                    "0 12px 32px rgba(0,0,0,.15)",
+                boxShadow: "0 12px 32px rgba(0,0,0,.15)",
+                overflow: "hidden", // Chống tràn viền khi bo góc
             }}
+            bodyStyle={{ padding: screens.xs ? 16 : 24 }}
         >
-
+            {/* PHẦN HEADER: TITLE VÀ BỘ LỌC */}
             <div
                 style={{
                     display: "flex",
-                    justifyContent:
-                        "space-between",
-                    alignItems: "center",
-                    marginBottom: 20,
-                    flexWrap: "wrap",
-                    gap: 12,
+                    flexDirection: screens.lg ? "row" : "column", // Chuyển dọc trên màn hình nhỏ
+                    justifyContent: "space-between",
+                    alignItems: screens.lg ? "center" : "flex-start",
+                    marginBottom: 24,
+                    gap: 16
                 }}
             >
-
-                <div>
-
+                {/* Title Section */}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div
                         style={{
-                            fontSize:
-                                screens.xs
-                                    ? 16
-                                    : 22,
+                            fontSize: screens.xs ? 18 : 22,
                             fontWeight: 700,
+                            color: "#0f172a"
                         }}
                     >
                         👨‍💻 WO Quá Hạn Tồn Các Nhóm
                     </div>
-
-                    <div
-                        style={{
-                            color: "#fff",
-                            marginTop: 4,
-                        }}
-                    >
-                    </div>
-
                 </div>
 
+                {/* Filter & Action Section */}
                 <div
                     style={{
                         display: "flex",
-                        gap: 10,
-                        alignItems: "center",
+                        flexDirection: screens.xs ? "column" : "row",
+                        flexWrap: "wrap",
+                        gap: 12,
+                        width: screens.lg ? "auto" : "100%", // Full width trên mobile
+                        alignItems: screens.xs ? "stretch" : "center"
                     }}
                 >
-
                     <Select
                         value={province}
+                        size={screens.xs ? "middle" : "large"}
                         style={{
-                            width: "100%",
-                            maxWidth: 180,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
+                            flex: screens.xs ? "1 1 100%" : "none",
+                            width: screens.xs ? "100%" : 160,
+                            background: "#e1f4fa"
                         }}
-
-                        getPopupContainer={(trigger) =>
-                            trigger.parentElement
-                        }
+                        getPopupContainer={(trigger) => trigger.parentElement}
                         onChange={(value) => {
-
-                            setProvince(
-                                value
-                            );
-
-                            setGroup(
-                                "ALL"
-                            );
-
+                            setProvince(value);
+                            setGroup("ALL");
                         }}
                     >
-
-                        {provinces.map(p => (
-
-                            <Select.Option
-                                key={p}
-                                value={p}
-                            >
-                                {p}
-                            </Select.Option>
-
-                        ))}
-
+                        {provinces.map(p => <Select.Option key={p} value={p}>{p}</Select.Option>)}
                     </Select>
 
                     <Select
                         value={group}
+                        size={screens.xs ? "middle" : "large"}
                         style={{
-                            width: "100%",
-                            maxWidth: 220,
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
+                            flex: screens.xs ? "1 1 100%" : "none",
+                            width: screens.xs ? "100%" : 160,
+                            background: "#e1f4fa"
                         }}
-                        getPopupContainer={(trigger) =>
-                            trigger.parentElement
-                        }
-                        onChange={
-                            setGroup
-                        }
+                        getPopupContainer={(trigger) => trigger.parentElement}
+                        onChange={setGroup}
                     >
-
-                        {woGroups.map(g => (
-
-                            <Select.Option
-                                key={g}
-                                value={g}
-                            >
-                                {g}
-                            </Select.Option>
-
-                        ))}
-
+                        {woGroups.map(g => <Select.Option key={g} value={g}>{g}</Select.Option>)}
                     </Select>
+
                     <Button
                         type="primary"
-                        icon={
-                            fullscreen
-                                ? <FullscreenExitOutlined/>
-                                : <FullscreenOutlined/>
-                        }
+                        size={screens.xs ? "middle" : "large"}
+                        icon={fullscreen ? <FullscreenExitOutlined/> : <FullscreenOutlined/>}
                         onClick={toggleFullscreen}
+                        style={{ flex: screens.xs ? "1 1 100%" : "none" }} // Nút kéo dài 100% trên mobile
                     >
-                        {
-                            fullscreen
-                                ? "Thu nhỏ"
-                                : "Phóng to"
-                        }
+                        {fullscreen ? "Thu nhỏ" : "Phóng to"}
                     </Button>
-
                 </div>
-
             </div>
 
-            <div
-                style={{
-                    overflowX: "auto",
-                }}
-            >
-                <div
-                    style={{
-                        minWidth:
-                            Math.max(
-                                chartData.length * 90,
-                                800
-                            ),
-                        height:
-                            fullscreen
-                                ? window.innerHeight - 120
-                                : screens.xs
-                                    ? 320
-                                    : 540,
-                    }}
+            {/* PHẦN BIỂU ĐỒ */}
+            <div style={{ width: '100%', overflowX: "auto" }}>
+                <ResponsiveContainer
+                    // Tự động dãn chiều ngang nếu data nhiều và đang ở màn hình điện thoại
+                    width={screens.xs && chartData.length > 6 ? chartData.length * 55 : "100%"}
+                    height={fullscreen ? window.innerHeight - 120 : (screens.xs ? 400 : 500)}
                 >
-                    <ResponsiveContainer
-                        width="100%"
-                        height="100%"
+                    <BarChart
+                        data={chartData}
+                        margin={{
+                            top: 20,
+                            right: screens.xs ? 0 : 20,
+                            left: screens.xs ? -20 : 10,
+                            bottom: 20
+                        }}
                     >
+                        <CartesianGrid stroke="#cbd5e1" strokeDasharray="3 3" vertical={false}/>
 
-                        <BarChart
-                            data={chartData}
-                            margin={{
-                                top: 20,
-                                right: 20,
-                                left: 0,
-                                bottom: 10,
+                        <XAxis
+                            dataKey="name"
+                            angle={-45}
+                            textAnchor="end"
+                            height={90}
+                            interval={screens.xs ? "preserveStartEnd" : 0} // Mobile tự động ẩn bớt text cho đỡ rối
+                            tick={{ fontSize: screens.xs ? 10 : 12, fill: "#64748b", fontWeight: 500 }}
+                            tickLine={false}
+                            axisLine={{ stroke: "#94a3b8" }}
+                        />
+
+                        <YAxis
+                            tick={{ fontSize: screens.xs ? 10 : 12, fill: "#64748b" }}
+                            tickLine={false}
+                            axisLine={false}
+                        />
+
+                        <Tooltip
+                            cursor={{ fill: "rgba(0, 0, 0, 0.05)" }}
+                            contentStyle={{
+                                background: "#1e293b",
+                                border: "none",
+                                borderRadius: 8,
+                                color: "#f8fafc",
+                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                             }}
+                            itemStyle={{ color: "#e2e8f0", fontSize: 13 }}
+                            labelStyle={{ color: "#94a3b8", marginBottom: 4, fontWeight: 600 }}
+                        />
+
+                        <Legend
+                            verticalAlign="top"
+                            align="center"
+                            iconType="circle"
+                            wrapperStyle={{
+                                fontSize: screens.xs ? 11 : 13,
+                                fontWeight: 600,
+                                paddingBottom: 20,
+                                color: "#334155"
+                            }}
+                        />
+
+                        {/* Bar: Đã hoàn thành */}
+                        <Bar
+                            dataKey="completed"
+                            stackId="a"
+                            name="Đã hoàn thành"
+                            fill="#1fc48d"
+                            radius={[0, 0, 0, 0]}
+                            barSize={screens.xs ? 22 : 35} // Bo hẹp cột trên mobile
                         >
-
-                            <CartesianGrid
-                                strokeDasharray="3 3"
-                                vertical={false}
-                            />
-
-                            <XAxis
-                                dataKey="name"
-                                angle={
-                                    screens.xs
-                                        ? -45
-                                        : -90
-                                }
-                                textAnchor="end"
-                                interval={0}
-                                height={
-                                    screens.xs
-                                        ? 90
-                                        : 70
-                                }
-                            />
-
-                            <YAxis/>
-
-                            <Tooltip/>
-
-
-                            <Legend
-                                verticalAlign="top"
-                                align="center"
-                                iconType="circle"
-                                wrapperStyle={{
-                                    fontWeight: 600,
-                                    paddingBottom: 20,
-                                    fontSize:
-                                        fullscreen
-                                            ? 16
-                                            : screens.xs
-                                                ? 9
-                                                : 11
-                                }}
-                            />
-
-
-                            <Bar
+                            <LabelList
                                 dataKey="completed"
-                                stackId="a"
-                                name="Đã hoàn thành"
-                                fill="#1fc48d"
-                                radius={[4, 4, 0, 0]}
-                            >
-                                <LabelList
-                                    dataKey="completed"
-                                    position="center"
-                                    fill="#000000"
-                                    fontSize={
-                                        fullscreen
-                                            ? 16
-                                            : screens.xs
-                                                ? 9
-                                                : 11
-                                    }
-                                    fontWeight={600}
-                                /></Bar>
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11} // Ẩn nhãn nội bộ trên mobile tránh rối mắt
+                                fontWeight={600}
+                            />
+                        </Bar>
 
-                            <Bar
+                        {/* Bar: Đang xử lý */}
+                        <Bar
+                            dataKey="processing"
+                            stackId="a"
+                            name="Đang xử lý"
+                            fill="#3b82f6"
+                            radius={[0, 0, 0, 0]}
+                        >
+                            <LabelList
                                 dataKey="processing"
-                                stackId="a"
-                                name="Đang xử lý"
-                                fill="#4285f4"
-                                radius={[4, 4, 0, 0]}
-                            >
-                                <LabelList
-                                    dataKey="processing"
-                                    position="center"
-                                    fill="#000000"
-                                    fontSize={
-                                        fullscreen
-                                            ? 16
-                                            : screens.xs
-                                                ? 9
-                                                : 11
-                                    }
-                                    fontWeight={600}
-                                />
-                                <LabelList
-                                    dataKey="processingTotal"
-                                    position="top"
-                                    fill="#000000"
-                                    fontSize={
-                                        fullscreen
-                                            ? 20
-                                            : 13
-                                    }
-                                    fontWeight={700}
-                                />
-                            </Bar>
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11}
+                                fontWeight={600}
+                            />
+                            <LabelList
+                                dataKey="processingTotal"
+                                position="top"
+                                fill="#334155"
+                                fontSize={screens.xs ? 11 : 13}
+                                fontWeight={700}
+                                offset={10}
+                            />
+                        </Bar>
 
-                            <Bar
+                        {/* Bar: Quá hạn trễ */}
+                        <Bar
+                            dataKey="overdue"
+                            stackId="a"
+                            name="Quá hạn trễ"
+                            fill="#ef4444"
+                            radius={[4, 4, 0, 0]}
+                        >
+                            <LabelList
                                 dataKey="overdue"
-                                stackId="a"
-                                name="Quá hạn trễ"
-                                fill="#ff4d57"
-                                radius={[4, 4, 0, 0]}
-                            >
-                                <LabelList
-                                    dataKey="overdue"
-                                    position="center"
-                                    fill="#000000"
-                                    fontSize={
-                                        fullscreen
-                                            ? 16
-                                            : screens.xs
-                                                ? 9
-                                                : 11
-                                    }
-                                    fontWeight={600}
-                                />
-                                <LabelList
-                                    dataKey="total"
-                                    position="top"
-                                    fill="#000000"
-                                    fontSize={
-                                        fullscreen
-                                            ? 20
-                                            : 13
-                                    }
-                                    fontWeight={700}
-                                />
-                            </Bar>
-
-                        </BarChart>
-
-                    </ResponsiveContainer>
-                </div>
+                                position="center"
+                                fill="#ffffff"
+                                fontSize={screens.xs ? 0 : 11}
+                                fontWeight={600}
+                            />
+                            <LabelList
+                                dataKey="total"
+                                position="top"
+                                fill="#334155"
+                                fontSize={screens.xs ? 11 : 13}
+                                fontWeight={700}
+                                offset={10}
+                            />
+                        </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
-
         </Card>
-
-);
+    );
 
 }
 

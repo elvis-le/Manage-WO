@@ -260,17 +260,15 @@ const screens = useBreakpoint();
     ];
 
     return (
-
         <Card
             style={{
                 borderRadius: 16,
-        overflow: "hidden",
+                overflow: "hidden",
                 background: "#e1f4fa",
-                boxShadow:
-                    "0 8px 24px rgba(0,0,0,0.08)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
             }}
+            bodyStyle={{ padding: screens.xs ? 12 : 24 }} // Thu gọn lề trên mobile
         >
-
             <Title
                 level={screens.xs ? 5 : 4}
                 style={{
@@ -290,96 +288,65 @@ const screens = useBreakpoint();
                     alignItems: "center",
                 }}
             >
-
                 <Input
-                    prefix={
-                        <SearchOutlined/>
-                    }
+                    prefix={<SearchOutlined />}
                     placeholder="Tìm kiếm..."
                     allowClear
                     value={searchText}
-                    onChange={e =>
-                        setSearchText(
-                            e.target.value
-                        )
-                    }
+                    onChange={e => setSearchText(e.target.value)}
                     style={{
-    width: "100%",
-    maxWidth: 340,
-                        background:
-                            "#e1f4fa",
-                        border:
-                            "1px solid #18bdf0",
+                        flex: screens.xs ? "1 1 100%" : "1 1 300px", // Chiếm 100% trên mobile, 300px trên PC
+                        maxWidth: screens.xs ? "100%" : 340,
+                        background: "#e1f4fa",
+                        border: "1px solid #18bdf0",
                     }}
                 />
 
                 <Select
-                    value={
-                        coordGroupFilter
-                    }
-                    onChange={
-                        setCoordGroupFilter
-                    }
+                    value={coordGroupFilter}
+                    onChange={setCoordGroupFilter}
                     style={{
-    width: "100%",
-    minWidth: 200,
+                        flex: screens.xs ? "1 1 100%" : "0 0 200px", // Chiếm 100% trên mobile, 200px trên PC
                         background: "#e1f4fa",
-                        border: "1px solid #18bdf0"
+                        border: "1px solid #18bdf0",
                     }}
                 >
-                    {
-                        coordGroups.map(
-                            g => (
-                                <Select.Option
-                                    key={g}
-                                    value={g}
-                                >
-                                    {g}
-                                </Select.Option>
-                            )
-                        )
-                    }
+                    {coordGroups.map(g => (
+                        <Select.Option key={g} value={g}>
+                            {g}
+                        </Select.Option>
+                    ))}
                 </Select>
-
             </div>
 
             <ConfigProvider
                 theme={{
                     components: {
                         Table: {
-                            headerBg:
-                                "#e1f4fa",
-                            colorBgContainer:
-                                "#e1f4fa",
-                            rowHoverBg:
-                                "#e1f4fa",
-                            borderColor:
-                                "#18bdf0",
+                            headerBg: "#e1f4fa",
+                            colorBgContainer: "#e1f4fa",
+                            rowHoverBg: "#e1f4fa",
+                            borderColor: "#18bdf0",
                         },
                     },
                 }}
             >
-
                 <Table
                     rowKey="key"
                     columns={columns}
                     dataSource={tableData}
                     bordered
-                    size="small"
+                    size={screens.xs ? "small" : "middle"} // Thu nhỏ form chữ trong bảng trên mobile
                     pagination={{
                         pageSize: 12,
                         showSizeChanger: true,
-                        showTotal:
-                            total =>
-                                `Tổng ${total} dòng`,
+                        showTotal: total => `Tổng ${total} dòng`,
                     }}
                     scroll={{
-                        x: "max-content",
+                        x: 1200, // Fix cứng chiều rộng tối thiểu để nội dung các cột không bị ép méo mó
                     }}
                 />
-
             </ConfigProvider>
-
         </Card>
     );
 }

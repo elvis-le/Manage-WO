@@ -8,7 +8,7 @@ import {
     Select,
     Typography,
     Space,
-    Button,
+    Button, Grid,
 } from "antd";
 
 import {
@@ -32,23 +32,23 @@ const {Title, Text} = Typography;
 function Dashboard() {
 
     const [rows, setRows] = useState([]);
-const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-    loadData();
-}, []);
+    useEffect(() => {
+        loadData();
+    }, []);
 
-const loadData = async () => {
-    try {
-        const res = await getWorkOrders();
+    const loadData = async () => {
+        try {
+            const res = await getWorkOrders();
 
-        setRows(res.data.rows || []);
-    } catch (err) {
-        console.error(err);
-    } finally {
-        setLoading(false);
-    }
-};
+            setRows(res.data.rows || []);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [month, setMonth] =
         useState("ALL");
@@ -190,403 +190,108 @@ const loadData = async () => {
             province,
         ]);
 
+    const { useBreakpoint } = Grid;
+    const screens = useBreakpoint();
+
+    // Các state cũ của bạn giữ nguyên
+
     if (loading) {
-    return (
-        <div
-            style={{
-                minHeight: "100vh",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
-            Loading...
-        </div>
-    );
-}
+        return (
+            <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                Loading...
+            </div>
+        );
+    }
 
     return (
-
-
-        <div
-            style={{
-                padding: window.innerWidth < 768 ? 12 : 24,
-                minHeight: "100vh",
-                background: "#ebf8fc",
-            }}
-        >
-
-
-            <div
-                style={{
-                    marginBottom: 20,
-                }}
-            >
-
-                <Title
-                    level={3}
-                    style={{
-                        marginBottom: 0,
-                    }}
-                >
+        <div style={{padding: screens.xs ? 12 : 24, minHeight: "100vh", background: "#ebf8fc"}}>
+            <div style={{marginBottom: 20}}>
+                <Title level={screens.xs ? 4 : 3} style={{marginBottom: 0}}>
                     Dashboard VCC3 - Tiến độ thực hiện công việc
                 </Title>
-
-                <Text
-                    style={{
-                        color: "#8c8c8c",
-                    }}
-                >
-                    Giám sát Work Order & SLA
-                </Text>
-
+                <Text style={{color: "#8c8c8c"}}>Giám sát Work Order & SLA</Text>
             </div>
 
-
-            <Card
-                style={{
-                    marginBottom: 20,
-                    borderRadius: 16,
-                    background:
-                        "#ebf8fc",
-                    border:
-                        "1px solid #18bdf0",
-                }}
-                bodyStyle={{
-                    padding: 20,
-                }}
-            >
-
-                <Row
-                    justify="space-between"
-                    align="middle"
-                >
-
-                    <Col>
-
-                        <Space size={20}>
-
-                            <FilterOutlined
-                                style={{
-                                    color:
-                                        "#1677ff",
-                                    fontSize: 20,
-                                }}
-                            />
-
+            {/* BỘ LỌC TỔNG */}
+            <Card style={{marginBottom: 20, borderRadius: 16, background: "#ebf8fc", border: "1px solid #18bdf0"}}
+                  bodyStyle={{padding: screens.xs ? 12 : 20}}>
+                <Row gutter={[16, 16]} align="middle" justify="space-between">
+                    <Col xs={24} lg={6}>
+                        <Space size={16}>
+                            <FilterOutlined style={{color: "#1677ff", fontSize: 20}}/>
                             <div>
-
-                                <div
-                                    style={{
-                                        fontWeight:
-                                            600,
-                                    }}
-                                >
-                                    Bộ lọc hệ thống
-                                </div>
-
-                                <div
-                                    style={{
-                                        color:
-                                            "#8c8c8c",
-                                    }}
-                                >
-                                    Áp dụng cho toàn bộ dashboard
-                                </div>
-
+                                <div style={{fontWeight: 600}}>Bộ lọc hệ thống</div>
+                                <div style={{color: "#8c8c8c", fontSize: 12}}>Áp dụng toàn bộ dashboard</div>
                             </div>
-
                         </Space>
-
                     </Col>
-
-                    <Col>
-
-                        <Space
-    wrap
-    size={[12, 12]}
->
-
-                            <Select
-                                value={year}
-                                onChange={
-                                    setYear
-                                }
-                                style={{
-                                    width: 140,
-                                    background: "#ebf8fc",
-                                    border: "1px solid #18bdf0"
-                                }}
-                            >
-                                {years.map(
-                                    y => (
-                                        <Select.Option
-                                            key={y}
-                                            value={y}
-                                        >
-                                            {
-                                                y === "ALL"
-                                                    ? "Tất cả năm"
-                                                    : y
-                                            }
-                                        </Select.Option>
-                                    )
-                                )}
-                            </Select>
-
-                            <Select
-                                value={month}
-                                onChange={
-                                    setMonth
-                                }
-                                style={{
-                                    width: 160,
-                                    background: "#ebf8fc",
-                                    border: "1px solid #18bdf0"
-                                }}
-                            >
-                                <Select.Option value="ALL">
-                                    Tất cả tháng
-                                </Select.Option>
-
-                                {
-                                    Array.from(
-                                        {
-                                            length: 12,
-                                        },
-                                        (_, i) =>
-                                            i + 1
-                                    ).map(
-                                        m => (
-                                            <Select.Option
-                                                key={m}
-                                                value={String(m)}
-                                            >
-                                                Tháng {m}
-                                            </Select.Option>
-                                        )
-                                    )
-                                }
-                            </Select>
-
-                            <Select
-                                suffixIcon={
-                                    <FilterOutlined
-                                        style={{
-                                            color: "#94a3b8",
-                                        }}
-                                    />
-                                }
-                                value={woGroup}
-                                style={{
-    minWidth: 150,
-    width: "100%",
-                                    background: "#ebf8fc",
-                                    border: "1px solid #18bdf0"
-                                }}
-                                onChange={
-                                    setWoGroup
-                                }
-                            >
-
-                                {woGroups.map(
-                                    g => (
-
-                                        <Select.Option
-                                            key={g}
-                                            value={g}
-                                        >
-                                            {
-                                                g === "ALL"
-                                                    ? "Tất cả nhóm WO"
-                                                    : g
-                                            }
-                                        </Select.Option>
-
-                                    )
-                                )}
-
-                            </Select>
-
-                            <Select
-                                value={province}
-                                style={{
-                                    width: 180,
-    maxWidth: "100%",
-                                    background: "#ebf8fc",
-                                    border: "1px solid #18bdf0",
-                                }}
-                                onChange={setProvince}
-                            >
-
-                                {provinces.map(p => (
-
-                                    <Select.Option
-                                        key={p}
-                                        value={p}
-                                    >
-                                        {
-                                            p === "ALL"
-                                                ? "Tất cả tỉnh"
-                                                : p
-                                        }
-                                    </Select.Option>
-
-                                ))}
-
-                            </Select>
-
-                            <Button
-                                danger
-
-                                style={{
-                                    width: 160,
-                                    background: "#ebf8fc",
-                                }}
-                                icon={
-                                    <ReloadOutlined/>
-                                }
+                    <Col xs={24} lg={18} style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: 12,
+                        justifyContent: screens.lg ? 'flex-end' : 'flex-start'
+                    }}>
+                        <Select value={year} onChange={setYear}
+                                style={{width: screens.xs ? "100%" : 120, border: "1px solid #18bdf0"}}>
+                            {years.map(y => (
+                                <Select.Option key={y} value={y}>{y === "ALL" ? "Tất cả năm" : y}</Select.Option>
+                            ))}
+                        </Select>
+                        <Select value={month} onChange={setMonth}
+                                style={{width: screens.xs ? "100%" : 140, border: "1px solid #18bdf0"}}>
+                            <Select.Option value="ALL">Tất cả tháng</Select.Option>
+                            {Array.from({length: 12}, (_, i) => i + 1).map(m => (
+                                <Select.Option key={m} value={String(m)}>Tháng {m}</Select.Option>
+                            ))}
+                        </Select>
+                        <Select value={woGroup} onChange={setWoGroup}
+                                style={{flex: "1 1 150px", border: "1px solid #18bdf0"}}>
+                            {woGroups.map(g => (
+                                <Select.Option key={g} value={g}>{g === "ALL" ? "Tất cả nhóm WO" : g}</Select.Option>
+                            ))}
+                        </Select>
+                        <Select value={province} onChange={setProvince}
+                                style={{flex: "1 1 150px", border: "1px solid #18bdf0"}}>
+                            {provinces.map(p => (
+                                <Select.Option key={p} value={p}>{p === "ALL" ? "Tất cả tỉnh" : p}</Select.Option>
+                            ))}
+                        </Select>
+                        <Button danger icon={<ReloadOutlined/>} style={{width: screens.xs ? "100%" : "auto"}}
                                 onClick={() => {
-
                                     setMonth("ALL");
-
                                     setYear("ALL");
-
                                     setWoGroup("ALL");
-
                                     setProvince("ALL");
-
-                                }}
-                            >
-                                Reset
-                            </Button>
-
-                        </Space>
-
+                                }}>
+                            Reset
+                        </Button>
                     </Col>
-
                 </Row>
-
             </Card>
 
+            <KPICards rows={filteredRows}/>
 
-            <KPICards
-                rows={filteredRows}
-            />
-
-
-            <Row
-    gutter={[20, 20]}
-    style={{
-        marginTop: 20,
-    }}
->
-                <Col xs={24} sm={24} md={24} lg={12}>
-    <ProvinceBarChart
-        rows={filteredRows}
-    />
-</Col>
-
-<Col xs={24} sm={24} md={24} lg={12}>
-    <FineBarChart
-        rows={filteredRows}
-    />
-</Col>
-
-
-                {/*<Col span={12}>
-                    <SLAStatusChart
-                        rows={filteredRows}
-                    />
-                </Col>*/}
-
-                {/*<Col span={12}>
-                    <PriorityPieChart
-                        rows={filteredRows}
-                    />
-                </Col>*/}
-
+            <Row gutter={[20, 20]} style={{marginTop: 20}}>
+                <Col xs={24} lg={12}><ProvinceBarChart rows={filteredRows}/></Col>
+                <Col xs={24} lg={12}><FineBarChart rows={filteredRows}/></Col>
             </Row>
 
-
-            <Row
-    gutter={[20, 20]}
-    style={{
-        marginTop: 20,
-    }}
->
-
-
-                <Col xs={24} sm={24} md={24} lg={12}>
-    <TopProvinceChart
-        rows={filteredRows}
-    />
-</Col>
-
-<Col xs={24} sm={24} md={24} lg={12}>
-    <EmployeeBarChart
-        rows={filteredRows}
-    />
-</Col>
-
-
+            <Row gutter={[20, 20]} style={{marginTop: 20}}>
+                <Col xs={24} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
+                <Col xs={24} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
             </Row>
 
-
-            {/*<Row*/}
-            {/*    gutter={20}*/}
-            {/*    style={{*/}
-            {/*        marginTop: 20,*/}
-            {/*    }}*/}
-            {/*>*/}
-
-            {/*    <Col span={24}>*/}
-            {/*        <EmployeeBarChart*/}
-            {/*            rows={filteredRows}*/}
-            {/*        />*/}
-            {/*    </Col>*/}
-
-
-            <div
-                style={{
-                    overflowX: "auto",
-                    marginTop: 20,
-                }}
-            >
-                <PendingTable
-                    rows={filteredRows}
-                />
+            {/* BỌC TABLE BẰNG DIV OVERFLOW */}
+            <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>
+                <PendingTable rows={filteredRows}/>
             </div>
 
-            <Row
-                gutter={[20, 20]}
-                style={{
-                    marginTop: 20,
-                }}
-            >
-
-
-                <Col xs={24} sm={24} md={24} lg={8}>
-    <UnderperformingHorizontalBarChart
-        rows={filteredRows}
-    />
-</Col>
-
-<Col xs={24} sm={24} md={24} lg={16}>
-    <EmployeeSummaryTable
-        rows={filteredRows}
-    />
-</Col>
-
-
+            <Row gutter={[20, 20]} style={{marginTop: 20}}>
+                <Col xs={24} lg={12}><UnderperformingHorizontalBarChart rows={filteredRows}/></Col>
+                <Col xs={24} lg={12}><EmployeeSummaryTable rows={filteredRows}/></Col>
             </Row>
-
-
-            {/*</Row>*/}
-
-
         </div>
     );
-}
+};
 
 export default Dashboard;

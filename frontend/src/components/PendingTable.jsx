@@ -292,156 +292,52 @@ const screens = useBreakpoint();
 );
 
     return (
-
-        <Card
-            style={{
-                marginTop: 24,
-                borderRadius: 16,
-        overflow: "hidden",
-                background: "#e1f4fa",
-                boxShadow:
-                    "0 8px 24px rgba(0,0,0,0.08)",
-            }}
-        >
-
-            <Title
-                 level={screens.xs ? 5 : 4}
-                style={{
-                    marginBottom: 20,
-                }}
-            >
+        <Card style={{ marginTop: 24, borderRadius: 16, overflow: "hidden", background: "#e1f4fa", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }} bodyStyle={{ padding: screens.xs ? 12 : 24 }}>
+            <Title level={screens.xs ? 5 : 4} style={{ marginBottom: 20 }}>
                 WO Chưa Hoàn Thành
             </Title>
 
-            <div
-                style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 12,
-                    marginBottom: 20,
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                }}
-            >
-
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 20, alignItems: "center" }}>
                 <Input
-                    prefix={
-                        <SearchOutlined/>
-                    }
+                    prefix={<SearchOutlined/>}
                     placeholder="Tìm kiếm..."
                     allowClear
                     value={searchText}
-                    onChange={e =>
-                        setSearchText(
-                            e.target.value
-                        )
-                    }
+                    onChange={e => setSearchText(e.target.value)}
                     style={{
-                        width: "100%",
-                        maxWidth: 340,
-                        background:
-                            "#e1f4fa",
-                        border:
-                            "1px solid #18bdf0",
+                        flex: screens.xs ? "1 1 100%" : "1 1 300px",
+                        maxWidth: screens.xs ? "100%" : 340,
+                        background: "#e1f4fa", border: "1px solid #18bdf0"
                     }}
                 />
 
-                <Space wrap>
-
-                    <Select
-                        value={
-                            coordGroupFilter
-                        }
-                        onChange={
-                            setCoordGroupFilter
-                        }
-                        style={{
-                            width: "100%",
-                            minWidth: 180,
-        fontFamily: "Arial",
-                            background: "#e1f4fa",
-                            border: "1px solid #18bdf0"
-                        }}
-
-
-    optionFilterProp="children"
-    popupMatchSelectWidth={false}
-                    >
-                        {coordGroups.map(
-                            g => (
-                                <Select.Option
-                                    key={g}
-                                    value={g}
-                                >
-                                    {console.log("OPTION:", g)}
-    {g}
-                                </Select.Option>
-                            )
-                        )}
-                    </Select>
-
-                    {/*<Select*/}
-                    {/*    value={*/}
-                    {/*        woGroupFilter*/}
-                    {/*    }*/}
-                    {/*    onChange={*/}
-                    {/*        setWoGroupFilter*/}
-                    {/*    }*/}
-                    {/*    style={{*/}
-                    {/*        width: 220,*/}
-                    {/*    }}*/}
-                    {/*>*/}
-                    {/*    {woGroups.map(*/}
-                    {/*        g => (*/}
-                    {/*            <Select.Option*/}
-                    {/*                key={g}*/}
-                    {/*                value={g}*/}
-                    {/*            >*/}
-                    {/*                {g}*/}
-                    {/*            </Select.Option>*/}
-                    {/*        )*/}
-                    {/*    )}*/}
-                    {/*</Select>*/}
-
-                </Space>
-
+                <Select
+                    value={coordGroupFilter}
+                    onChange={setCoordGroupFilter}
+                    style={{
+                        flex: screens.xs ? "1 1 100%" : "0 0 200px",
+                        fontFamily: "Arial", background: "#e1f4fa", border: "1px solid #18bdf0"
+                    }}
+                    optionFilterProp="children"
+                    popupMatchSelectWidth={false}
+                >
+                    {coordGroups.map(g => (
+                        <Select.Option key={g} value={g}>{g}</Select.Option>
+                    ))}
+                </Select>
             </div>
 
-            <ConfigProvider
-                theme={{
-                    components: {
-                        Table: {
-                            headerBg:
-                                "#e1f4fa",
-                            colorBgContainer:
-                                "#e1f4fa",
-                            rowHoverBg:
-                                "#e1f4fa",
-                            borderColor:
-                                "#18bdf0",
-                        },
-                    },
-                }}
-            >
+            <ConfigProvider theme={{ components: { Table: { headerBg: "#e1f4fa", colorBgContainer: "#e1f4fa", rowHoverBg: "#e1f4fa", borderColor: "#18bdf0" } } }}>
                 <Table
                     rowKey="key"
                     columns={columns}
                     dataSource={tableData}
                     bordered
-                    size="small"
-                    pagination={{
-                        pageSize: 12,
-                        showSizeChanger: true,
-                        showTotal:
-                            total =>
-                                `Tổng ${total} dòng`,
-                    }}
-                    scroll={{
-                        x: "max-content",
-                    }}
+                    size={screens.xs ? "small" : "middle"}
+                    pagination={{ pageSize: 12, showSizeChanger: true, showTotal: total => `Tổng ${total} dòng` }}
+                    scroll={{ x: 1000 }} // Fix cứng x để ép thanh cuộn ngang xuất hiện mượt hơn
                 />
             </ConfigProvider>
-
         </Card>
     );
 }
