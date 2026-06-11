@@ -45,17 +45,17 @@ const screens = useBreakpoint();
         [rows]
     );
 
-    const woGroups = useMemo(
-        () => [
-            "ALL",
-            ...new Set(
-                rows
-                    .map(x => x.wo_group)
-                    .filter(Boolean)
-            ),
-        ],
-        [rows]
-    );
+    // const woGroups = useMemo(
+    //     () => [
+    //         "ALL",
+    //         ...new Set(
+    //             rows
+    //                 .map(x => x.wo_group)
+    //                 .filter(Boolean)
+    //         ),
+    //     ],
+    //     [rows]
+    // );
 
     const dynamicWoGroups = useMemo(() => {
 
@@ -131,11 +131,6 @@ const screens = useBreakpoint();
                         ?.toLowerCase()
                         .includes(keyword)
 
-                    ||
-
-                    x.work_type
-                        ?.toLowerCase()
-                        .includes(keyword)
             );
         }
 
@@ -145,7 +140,6 @@ const screens = useBreakpoint();
 
             const key = [
                 row.province,
-                row.work_type,
                 row.coord_group,
                 row.employee,
             ].join("|");
@@ -157,9 +151,6 @@ const screens = useBreakpoint();
 
                     province:
                         row.province,
-
-                    work_type:
-                        row.work_type,
 
                     coord_group:
                         row.coord_group,
@@ -243,12 +234,6 @@ const screens = useBreakpoint();
         },
 
         {
-            title: "Loại Công Việc",
-            dataIndex: "work_type",
-            width: 240,
-        },
-
-        {
             title: "Nhóm điều phối",
             dataIndex: "coord_group",
             width: 220,
@@ -299,6 +284,9 @@ const screens = useBreakpoint();
         },
     ];
 
+    console.log(
+  [...new Set(rows.map(x => x.coord_group))]
+);
     return (
 
         <Card
@@ -366,7 +354,12 @@ const screens = useBreakpoint();
                         style={{
                             width: "100%",
                             minWidth: 180,
+        fontFamily: "Arial",
                         }}
+
+
+    optionFilterProp="children"
+    popupMatchSelectWidth={false}
                     >
                         {coordGroups.map(
                             g => (
@@ -374,7 +367,8 @@ const screens = useBreakpoint();
                                     key={g}
                                     value={g}
                                 >
-                                    {g}
+                                    {console.log("OPTION:", g)}
+    {g}
                                 </Select.Option>
                             )
                         )}

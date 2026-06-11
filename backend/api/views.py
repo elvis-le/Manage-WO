@@ -67,7 +67,7 @@ def work_orders(request):
             "province": wo.province_code,
             "priority": wo.priority_level,
             "wo_group": wo.wo_group,
-            "coord_group": wo.dispatch_group,
+            "t status": wo.dispatch_group,
             "employee": wo.assignee,
             "is_dispatch_employee":
                 wo.assignee in valid_assignees,
