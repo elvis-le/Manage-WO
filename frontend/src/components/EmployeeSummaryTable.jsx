@@ -131,17 +131,12 @@ const screens = useBreakpoint();
 
             // Tổng WO tồn
             if (row.pending) {
-
-                grouped[key]
-                    .total_pending += 1;
-            }
-
-            // Tổng WO tồn quá hạn
-            if (row.overdue) {
-
-                grouped[key]
-                    .total_overdue += 1;
-            }
+    grouped[key].total_pending += 1;
+    if (row.overdue) {
+    grouped[key]
+        .total_overdue += 1;
+}
+}
 
             // Tổng WO tồn quá hạn > 5 ngày
             if (
