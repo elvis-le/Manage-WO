@@ -47,6 +47,31 @@ def work_orders(request):
             ]
         )
 
+        close_time = (
+                wo.closed_at
+                or wo.completed_at
+        )
+
+        if (
+                completed
+                and close_time
+        ):
+            completed_today = (
+                    close_time.date()
+                    == date.today() - timedelta(days=1)
+            )
+
+        completed_today = False
+
+        if (
+                completed
+                and wo.closed_at
+        ):
+            completed_today = (
+                    wo.closed_at.date()
+                    == date.today() - timedelta(days=1)
+            )
+
         pending = not completed
 
         overdue = (
@@ -90,15 +115,16 @@ def work_orders(request):
             "penalty": float(wo.penalty_amount or 0),
 
             "close_time": (
-                wo.closed_at.isoformat()
-                if wo.closed_at
-                else None
-            ),
+    close_time.isoformat()
+    if close_time
+    else None
+),
 
             "work_type": wo.work_type,
             "wo_status": wo.status,
             "remain_hour": wo.remaining_hours or 0,
             "overdue_day": wo.overdue_days or 0,
+            "completed_today": completed_today,
 
             "wo_id": wo.wo_code,
 
