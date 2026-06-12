@@ -11,7 +11,7 @@ from .models import WorkOrder, DispatchAssignment
 @api_view(["GET"])
 def work_orders(request):
 
-    batch_id = 2
+    batch_id = 1
 
     queryset = WorkOrder.objects.all()
 
@@ -70,9 +70,9 @@ def work_orders(request):
         )
 
         near_due = (
-            pending
-            and (wo.remaining_hours or 0) > 0
-            and (wo.remaining_hours or 0) <= 24
+                pending
+                and (wo.remaining_hours or 0) > 0
+                and (wo.remaining_hours or 0) <= 72
         )
 
         assignment = assignment_map.get(

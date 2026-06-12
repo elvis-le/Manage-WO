@@ -162,7 +162,7 @@ const screens = useBreakpoint();
 
     overdue: {},
 
-    overdue_5: {},
+    near_due: {},
 };
 
                 dynamicWoGroups.forEach(group => {
@@ -171,7 +171,7 @@ const screens = useBreakpoint();
     .overdue[group] = 0;
 
 grouped[key]
-    .overdue_5[group] = 0;
+    .near_due[group] = 0;
                 });
             }
 
@@ -192,13 +192,13 @@ grouped[key]
 
 
             if (
-                (row.overdue_day || 0) > 5
-                &&
-                group
-            ) {
-                grouped[key].overdue_5[group] =
-    (grouped[key].overdue_5[group] || 0) + 1;
-            }
+    row.near_due
+    &&
+    group
+) {
+    grouped[key].near_due[group] =
+        (grouped[key].near_due[group] || 0) + 1;
+}
 
         });
 
@@ -271,19 +271,19 @@ grouped[key]
 },
 
         {
-            title: "WO Quá Hạn > 5 Ngày",
+    title: "WO Sắp Quá Hạn 1-3 Ngày",
 
-            children:
-                dynamicWoGroups.map(
-                    group => ({
-                        title: group,
-                        width: 90,
-                        align: "center",
-                        render: (_, row) =>
-                            row.overdue_5[group] || 0,
-                    })
-                ),
-        },
+    children:
+        dynamicWoGroups.map(
+            group => ({
+                title: group,
+                width: 90,
+                align: "center",
+                render: (_, row) =>
+                    row.near_due[group] || 0,
+            })
+        ),
+},
     ];
 
 
