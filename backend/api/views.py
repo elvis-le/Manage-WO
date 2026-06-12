@@ -97,6 +97,7 @@ def work_orders(request):
 
             "coord_group": wo.dispatch_group,
             "t status": wo.dispatch_group,
+            "system_name": wo.system_name,
             "employee": wo.assignee,
             "is_dispatch_employee":
                 wo.assignee in valid_assignees,

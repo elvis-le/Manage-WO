@@ -26,6 +26,7 @@ import PendingTable from "../components/PendingTable";
 import FineBarChart from "../components/FineBarChar.jsx";
 import UnderperformingHorizontalBarChart from "../components/UnderperformingHorizontalBarChart.jsx";
 import EmployeeSummaryTable from "../components/EmployeeSummaryTable.jsx";
+import OverdueDispatchTable from "../components/OverdueDispatchTable.jsx";
 
 const {Title, Text} = Typography;
 
@@ -280,6 +281,10 @@ function Dashboard() {
                 <Col xs={24} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
                 <Col xs={24} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
             </Row>
+
+            <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>
+                <OverdueDispatchTable rows={filteredRows}/>
+            </div>
 
             {/* BỌC TABLE BẰNG DIV OVERFLOW */}
             <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>

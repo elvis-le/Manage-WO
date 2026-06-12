@@ -57,40 +57,17 @@ const screens = useBreakpoint();
         setProvince,
     ] = useState("ALL");
 
-    const dropdownOptions =
-        useMemo(() => {
-
-            if (
-                viewType ===
-                "PROVINCE"
-            ) {
-
-                return [
-                    "ALL",
-                    ...new Set(
-                        rows.map(
-                            x =>
-                                x.province
-                        )
-                    ),
-                ];
-
-            }
-
-            return [
-                "ALL",
-                ...new Set(
-                    rows.map(
-                        x =>
-                            x.wo_group
-                    )
-                ),
-            ];
-
-        }, [
-            rows,
-            viewType,
-        ]);
+    const dropdownOptions = useMemo(
+    () => [
+        "ALL",
+        ...new Set(
+            rows
+                .map(x => x.province)
+                .filter(Boolean)
+        ),
+    ],
+    [rows]
+);
 
     const formatMoney = (value) => {
     if (value >= 1000000000) {
@@ -120,11 +97,17 @@ const screens = useBreakpoint();
 
                 rows.forEach(row => {
 
-                    const key =
-                        province ===
-                        "ALL"
-                            ? row.province
-                            : province;
+                    let key;
+
+if (province === "ALL") {
+
+    key = row.province;
+
+} else {
+
+    key = row.district;
+
+}
 
                     if (
                         province !==
