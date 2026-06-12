@@ -154,7 +154,7 @@ const screens = useBreakpoint();
 
                     <div>
                         <div style={{ fontSize: screens.xs ? 18 : 22, fontWeight: 700, color: "#0f172a" }}>
-                            Tổng Tồn Mức Khu Vực/Tỉnh
+                            Tổng Mức WO Khu Vực/Tỉnh
                         </div>
                         <div style={{ color: "#64748b", fontSize: screens.xs ? 12 : 13 }}>
                             Sắp xếp thứ tự theo tổng Work Order

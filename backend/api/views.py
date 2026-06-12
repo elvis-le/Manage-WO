@@ -38,12 +38,12 @@ def work_orders(request):
         for x in DispatchAssignment.objects.all()
     }
 
+
     for wo in queryset:
 
         completed = (
                 wo.status in [
-            "Đóng",
-            "FT hoàn thành"
+            "Đóng"
         ]
         )
 
@@ -78,6 +78,17 @@ def work_orders(request):
         assignment = assignment_map.get(
             wo.assignee
         )
+
+        on_time = False
+
+        if (
+                completed
+                and wo.completed_at
+                and wo.due_at
+        ):
+            on_time = (
+                    wo.completed_at <= wo.due_at
+            )
 
         rows.append({
             "province": wo.province_code,
@@ -117,6 +128,7 @@ def work_orders(request):
             "overdue_day": wo.overdue_days or 0,
             "completed_today": completed_today,
 
+            "on_time": on_time,
             "wo_id": wo.wo_code,
 
             "created_time": (

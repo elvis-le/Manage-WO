@@ -50,12 +50,6 @@ const completedTodayWO =
     x => x.completed_today
   ).length;
 
-console.log(rows[0]);
-console.log(
-  rows.filter(x => x.completed_today)
-);
-console.log("complete today:" + completedTodayWO);
-
 const onTimeCompleted =
   rows.filter(
     x => x.on_time

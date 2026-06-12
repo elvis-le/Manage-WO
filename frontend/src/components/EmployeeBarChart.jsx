@@ -123,26 +123,27 @@ const screens = useBreakpoint();
 
                         result[key] = {
                             name: key,
-                            completed: 0,
                             processing: 0,
                             overdue: 0,
                             total: 0,
                         };
 
                     }
-                    result[key].total++;
-
                     if (row.completed) {
-                        result[key].completed++;
-                    }
+    result[key].completed++;
+}
 
-                    if (row.pending && !row.overdue) {
-                        result[key].processing++;
-                    }
+if (row.pending) {
 
-                    if (row.overdue && !row.completed) {
-                        result[key].overdue++;
-                    }
+    result[key].total++;
+
+    if (row.overdue) {
+        result[key].overdue++;
+    } else {
+        result[key].processing++;
+    }
+
+}
 
                 });
 
@@ -154,11 +155,11 @@ const screens = useBreakpoint();
         row.district ||
         "Chưa xác định";
 
+
     if (!result[key]) {
 
         result[key] = {
             name: key,
-            completed: 0,
             processing: 0,
             overdue: 0,
             total: 0,
@@ -166,25 +167,19 @@ const screens = useBreakpoint();
 
     }
 
-    result[key].total++;
+    if (!row.pending) {
+    return;
+}
 
-    if (row.completed) {
-        result[key].completed++;
-    }
+result[key].total++;
 
-    if (
-        row.pending &&
-        !row.overdue
-    ) {
-        result[key].processing++;
-    }
+if (!row.overdue) {
+    result[key].processing++;
+}
 
-    if (
-        row.overdue &&
-        !row.completed
-    ) {
-        result[key].overdue++;
-    }
+if (row.overdue) {
+    result[key].overdue++;
+}
 
 });
 
@@ -208,6 +203,7 @@ const screens = useBreakpoint();
             filteredRows,
             group,
         ]);
+
 
     const toggleFullscreen = async () => {
 
@@ -255,6 +251,8 @@ const screens = useBreakpoint();
     }, []);
 
     // --- Các phần import và logic state/calculations ở trên giữ nguyên ---
+
+
 
     return (
         <Card
@@ -408,22 +406,6 @@ const screens = useBreakpoint();
                         />
 
                         {/* Bar: Đã hoàn thành */}
-                        <Bar
-                            dataKey="completed"
-                            stackId="a"
-                            name="Đã hoàn thành"
-                            fill="#1fc48d"
-                            radius={[0, 0, 0, 0]}
-                            barSize={screens.xs ? 22 : 35} // Bo hẹp cột trên mobile
-                        >
-                            <LabelList
-                                dataKey="completed"
-                                position="center"
-                                fill="#ffffff"
-                                fontSize={screens.xs ? 0 : 11} // Ẩn nhãn nội bộ trên mobile tránh rối mắt
-                                fontWeight={600}
-                            />
-                        </Bar>
 
                         {/* Bar: Đang xử lý */}
                         <Bar

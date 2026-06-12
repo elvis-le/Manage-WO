@@ -524,9 +524,11 @@ function calculateMetric(
 
     if (metric === "overdue") {
 
-        return items.filter(
-            x => x.overdue
-        ).length;
+    return items.filter(
+        x =>
+            x.overdue &&
+            !x.completed
+    ).length;
 
     }
 
