@@ -41,10 +41,10 @@ def work_orders(request):
     for wo in queryset:
 
         completed = (
-            wo.status in [
-                "Đóng",
-                "FT hoàn thành"
-            ]
+                wo.status in [
+            "Đóng",
+            "FT hoàn thành"
+        ]
         )
 
         close_time = (
@@ -52,23 +52,14 @@ def work_orders(request):
                 or wo.completed_at
         )
 
+        completed_today = False
+
         if (
                 completed
                 and close_time
         ):
             completed_today = (
                     close_time.date()
-                    == date.today() - timedelta(days=1)
-            )
-
-        completed_today = False
-
-        if (
-                completed
-                and wo.closed_at
-        ):
-            completed_today = (
-                    wo.closed_at.date()
                     == date.today() - timedelta(days=1)
             )
 
