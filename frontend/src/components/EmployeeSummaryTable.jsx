@@ -44,60 +44,62 @@ const screens = useBreakpoint();
 
     const tableData = useMemo(() => {
 
-        let result = [...rows];
+    let result = rows.filter(
+        row => row.is_dispatch_employee === true
+    );
 
-        if (coordGroupFilter !== "ALL") {
+    if (coordGroupFilter !== "ALL") {
 
-            result = result.filter(
-                x =>
-                    x.coord_group ===
-                    coordGroupFilter
-            );
-        }
+        result = result.filter(
+            x =>
+                x.coord_group ===
+                coordGroupFilter
+        );
+    }
 
-        if (searchText.trim()) {
+    if (searchText.trim()) {
 
-            const keyword =
-                searchText
-                    .toLowerCase()
-                    .trim();
+        const keyword =
+            searchText
+                .toLowerCase()
+                .trim();
 
-            result = result.filter(
-                x =>
-                    x.employee
-                        ?.toLowerCase()
-                        .includes(keyword)
+        result = result.filter(
+            x =>
+                x.employee
+                    ?.toLowerCase()
+                    .includes(keyword)
 
-                    ||
+                ||
 
-                    x.province
-                        ?.toLowerCase()
-                        .includes(keyword)
+                x.province
+                    ?.toLowerCase()
+                    .includes(keyword)
 
-                    ||
+                ||
 
-                    x.district
-                        ?.toLowerCase()
-                        .includes(keyword)
+                x.district
+                    ?.toLowerCase()
+                    .includes(keyword)
 
-                    ||
+                ||
 
-                    x.phone
-                        ?.toLowerCase()
-                        .includes(keyword)
-            );
-        }
+                x.phone
+                    ?.toLowerCase()
+                    .includes(keyword)
+        );
+    }
 
         const grouped = {};
 
         result.forEach(row => {
 
             const key = [
-                row.province,
-                row.employee,
-                row.phone,
-                row.district,
-            ].join("|");
+    row.province,
+    row.employee,
+    row.phone,
+    row.district,
+].join("|");
 
             if (!grouped[key]) {
 

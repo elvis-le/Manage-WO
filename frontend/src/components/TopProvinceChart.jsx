@@ -291,14 +291,14 @@ const screens = useBreakpoint();
         ]);
 
     let title =
-        `Top 10 Tỉnh - ${status}`;
+        `Ranking Tỉnh ${status} Cao`;
 
     if (
         province !== "ALL" &&
         woGroup === "ALL"
     ) {
         title =
-            `Top 10 Nhóm WO - ${province} - ${status}`;
+            `Ranking Nhóm WO - ${province} ${status} Cao`;
     }
 
     if (
@@ -306,7 +306,7 @@ const screens = useBreakpoint();
     woGroup !== "ALL"
 ) {
     title =
-        `Top 10 Tỉnh - ${woGroup} - ${status}`;
+        `Ranking Tỉnh - ${woGroup} ${status} Cao`;
 }
 
     if (
@@ -314,7 +314,7 @@ const screens = useBreakpoint();
         woGroup !== "ALL"
     ) {
         title =
-    `Top 10 Nhân viên - ${province} - ${woGroup} - ${status}`;
+    `Ranking Nhóm Đều Phối - ${province} - ${woGroup} ${status} Cao`;
     }
 
     return (

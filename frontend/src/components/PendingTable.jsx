@@ -84,11 +84,13 @@ const screens = useBreakpoint();
 
     }, [rows]);
 
+
     const tableData = useMemo(() => {
 
         let result = rows.filter(
-            row => row.pending
-        );
+    row =>
+        row.is_dispatch_employee === true
+);
 
         if (coordGroupFilter !== "ALL") {
             result = result.filter(
@@ -139,10 +141,11 @@ const screens = useBreakpoint();
         result.forEach(row => {
 
             const key = [
-                row.province,
-                row.coord_group,
-                row.employee,
-            ].join("|");
+   row.province,
+    row.employee,
+    row.phone,
+    row.district,
+].join("|");
 
             if (!grouped[key]) {
 
@@ -160,6 +163,8 @@ const screens = useBreakpoint();
 
                     total_pending: 0,
 
+    total_overdue: 0,
+
                     near_due: {},
 
                     overdue_5: {},
@@ -175,8 +180,14 @@ const screens = useBreakpoint();
                 });
             }
 
-            grouped[key]
-                .total_pending += 1;
+            if (row.pending) {
+    grouped[key].total_pending += 1;
+}
+
+            if (row.overdue) {
+    grouped[key]
+        .total_overdue += 1;
+}
 
             const group =
                 row.wo_group;
@@ -200,6 +211,7 @@ const screens = useBreakpoint();
             }
 
         });
+
 
         return Object
             .values(grouped)
@@ -254,6 +266,13 @@ const screens = useBreakpoint();
         },
 
         {
+    title: "Tổng WO Tồn Quá Hạn",
+    dataIndex: "total_overdue",
+    width: 160,
+    align: "center",
+},
+
+        {
             title: "WO Sắp Quá Hạn 1-3 ngày",
 
             children:
@@ -284,12 +303,7 @@ const screens = useBreakpoint();
         },
     ];
 
-    console.log(
-  [...new Set(rows.map(x => x.coord_group))]
-);
-     console.log(
-  [...new Set(rows.map(x => x.coordGroups))]
-);
+
 
     return (
         <Card style={{ marginTop: 24, borderRadius: 16, overflow: "hidden", background: "#e1f4fa", boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }} bodyStyle={{ padding: screens.xs ? 12 : 24 }}>
