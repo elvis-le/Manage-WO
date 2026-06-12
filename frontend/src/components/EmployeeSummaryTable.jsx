@@ -195,71 +195,33 @@ const screens = useBreakpoint();
     ]);
 
     const columns = [
-
-        {
-            title: "STT",
-            dataIndex: "stt",
-            width: 80,
-            align: "center",
-            fixed: "left",
-        },
-
-        {
-            title: "Mã tỉnh",
-            dataIndex: "province",
-            width: 120,
-            align: "center",
-        },
-
-        {
-            title: "Nhân viên",
-            dataIndex: "employee",
-            width: 220,
-    fixed: "left",
-        },
-
-        {
-            title: "Số điện thoại",
-            dataIndex: "phone",
-            width: 160,
-            align: "center",
-        },
-
-        {
-            title: "Huyện",
-            dataIndex: "district",
-            width: 240,
-        },
-
-        {
-            title: "Tổng WO tồn",
-            dataIndex: "total_pending",
-            width: 140,
-            align: "center",
-        },
-
-        {
-            title: "Tổng WO tồn quá hạn",
-            dataIndex: "total_overdue",
-            width: 170,
-            align: "center",
-        },
-
-        {
-            title: "Tổng WO tồn quá hạn > 5 ngày",
-            dataIndex: "overdue_5",
-            width: 180,
-            align: "center",
-        },
-
-        {
-            title: "Tổng WO thực hiện 5 ngày gần nhất",
-            dataIndex: "completed_5_days",
-            width: 220,
-            align: "center",
-        },
-
-    ];
+    { title: "STT", dataIndex: "stt", width: 50, align: "center" },
+    { title: "Tỉnh", dataIndex: "province", width: 80, align: "center" },
+    { title: "Nhân viên", dataIndex: "employee", width: 150 },
+    {
+        title: "SĐT",
+        dataIndex: "phone",
+        width: 120,
+        align: "center",
+        responsive: ['md'] // Chỉ hiện trên màn hình trung bình trở lên
+    },
+    {
+        title: "Huyện",
+        dataIndex: "district",
+        width: 150,
+        responsive: ['md']
+    },
+    { title: "Tồn", dataIndex: "total_pending", width: 80, align: "center" },
+    { title: "Quá hạn", dataIndex: "total_overdue", width: 90, align: "center" },
+    {
+        title: ">5 ngày",
+        dataIndex: "overdue_5",
+        width: 90,
+        align: "center",
+        responsive: ['sm']
+    },
+    { title: "5 ngày qua", dataIndex: "completed_5_days", width: 100, align: "center" },
+];
 
     return (
         <Card
@@ -334,20 +296,19 @@ const screens = useBreakpoint();
                 }}
             >
                 <Table
-                    rowKey="key"
-                    columns={columns}
-                    dataSource={tableData}
-                    bordered
-                    size={screens.xs ? "small" : "middle"} // Thu nhỏ form chữ trong bảng trên mobile
-                    pagination={{
-                        pageSize: 12,
-                        showSizeChanger: true,
-                        showTotal: total => `Tổng ${total} dòng`,
-                    }}
-                    scroll={{
-                        x: 1200, // Fix cứng chiều rộng tối thiểu để nội dung các cột không bị ép méo mó
-                    }}
-                />
+    rowKey="key"
+    columns={columns}
+    dataSource={tableData}
+    bordered
+    size={screens.xs ? "small" : "middle"}
+    pagination={{
+        pageSize: screens.xs ? 5 : 12, // Thu nhỏ số dòng hiển thị trên mobile
+        size: screens.xs ? "small" : "default",
+        showTotal: (total) => screens.xs ? `${total}` : `Tổng ${total} dòng`,
+    }}
+    // Cho phép cuộn ngang linh hoạt hơn, tránh ép cứng 1200px
+    scroll={{ x: screens.xs ? 600 : 'max-content' }}
+/>
             </ConfigProvider>
         </Card>
     );

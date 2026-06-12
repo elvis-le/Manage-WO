@@ -84,6 +84,15 @@ const percent = value =>
       ).toFixed(1)
     : "0.0";
 
+const yesterday = new Date();
+
+yesterday.setDate(
+  yesterday.getDate() - 1
+);
+
+const yesterdayText =
+  yesterday.toLocaleDateString("vi-VN");
+
  const cards = [
 
   {
@@ -127,7 +136,7 @@ const percent = value =>
   },
 
   {
-    title: "Hoàn Thành Hôm Nay",
+    title: `Hoàn Thành ${yesterdayText}`,
     value: completedTodayWO,
     percent: percent(completedTodayWO),
     color: "#08979c",

@@ -160,6 +160,8 @@ const screens = useBreakpoint();
 
     total_pending: 0,
 
+    total_overdue: 0,
+
     overdue: {},
 
     near_due: {},
@@ -182,18 +184,27 @@ grouped[key]
 
             if (row.pending) {
     grouped[key].total_pending += 1;
+    if (row.overdue) {
+    grouped[key]
+        .total_overdue += 1;
+}
 }
 
-           if (row.overdue && group) {
+
+           if (
+    row.pending &&
+    row.overdue &&
+    group
+) {
 
     grouped[key].overdue[group] =
-    (grouped[key].overdue[group] || 0) + 1;
+        (grouped[key].overdue[group] || 0) + 1;
 }
 
 
             if (
-    row.near_due
-    &&
+    row.pending &&
+    row.near_due &&
     group
 ) {
     grouped[key].near_due[group] =
@@ -217,6 +228,10 @@ grouped[key]
         searchText,
         dynamicWoGroups,
     ]);
+
+
+
+
 
     const columns = [
 
@@ -256,6 +271,13 @@ grouped[key]
         },
 
         {
+    title: "Tổng WO Tồn Quá Hạn",
+    dataIndex: "total_overdue",
+    width: 160,
+    align: "center",
+},
+
+        {
     title: "WO Tồn Quá Hạn",
 
     children:
@@ -285,7 +307,6 @@ grouped[key]
         ),
 },
     ];
-
 
 
     return (
