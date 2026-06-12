@@ -32,8 +32,10 @@ const pendingWO =
 
 const overdueWO =
   rows.filter(
-    x => x.overdue
-  ).length;
+    x =>
+            x.overdue &&
+            !x.completed
+    ).length;
 
 const nearDueWO =
   rows.filter(

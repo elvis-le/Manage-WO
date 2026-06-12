@@ -278,13 +278,9 @@ function Dashboard() {
             </Row>
 
             <Row gutter={[20, 20]} style={{marginTop: 20}}>
-                <Col xs={24} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
-                <Col xs={24} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
+                <Col xs={16} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
+                <Col xs={16} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
             </Row>
-
-            <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>
-                <OverdueDispatchTable rows={filteredRows}/>
-            </div>
 
             {/* BỌC TABLE BẰNG DIV OVERFLOW */}
             <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>

@@ -1,8 +1,10 @@
 import {
-    Card, Grid,
+    Card,
+    Grid,
     Select,
     Space,
     Typography,
+    Modal,
 } from "antd";
 
 import {
@@ -24,7 +26,7 @@ import {
     YAxis,
     Tooltip,
     CartesianGrid,
-    Cell,
+    Cell, LabelList,
 } from "recharts";
 
 const {Title} = Typography;
@@ -36,6 +38,7 @@ function TopProvinceChart({
 
 const screens = useBreakpoint();
 
+
     const [metric, setMetric] =
         useState("pending");
 
@@ -44,6 +47,78 @@ const screens = useBreakpoint();
 
     const [woGroup, setWoGroup] =
         useState("ALL");
+
+    const [employeeModalOpen,
+    setEmployeeModalOpen] =
+    useState(false);
+
+const [selectedEmployee,
+    setSelectedEmployee] =
+    useState(null);
+
+const employeeChartData =
+    useMemo(() => {
+
+        if (!selectedEmployee)
+            return [];
+
+        const filtered =
+    rows.filter(
+        row =>
+
+            row.employee ===
+            selectedEmployee
+
+            &&
+
+            row.province ===
+            province
+
+            &&
+
+            row.wo_group ===
+            woGroup
+
+            &&
+
+            (
+                metric === "pending"
+                    ? row.pending
+                    : metric === "overdue"
+                    ? (
+                        row.overdue &&
+                        !row.completed
+                    )
+                    : false
+            )
+    );
+
+        const grouped = {};
+
+        filtered.forEach(row => {
+
+            const key =
+                row.work_type ||
+                "Khác";
+
+            grouped[key] =
+                (grouped[key] || 0) + 1;
+
+        });
+
+        return Object
+            .entries(grouped)
+            .map(
+                ([type, count]) => ({
+                    type,
+                    count,
+                })
+            );
+
+    }, [
+        rows,
+        selectedEmployee,
+    ]);
 
     const status = useMemo(() => {
         switch (metric) {
@@ -317,7 +392,18 @@ const screens = useBreakpoint();
     `Ranking Nhóm Đều Phối - ${province} - ${woGroup} ${status} Cao`;
     }
 
+    const COLORS = [
+    "#1677ff",
+    "#52c41a",
+    "#faad14",
+    "#f5222d",
+    "#722ed1",
+    "#13c2c2",
+    "#eb2f96",
+];
+
     return (
+        <>
         <Card bordered={false} style={{ marginTop: 0, borderRadius: 18, background: "#e1f4fa", boxShadow: "0 12px 32px rgba(0,0,0,.15)" }} bodyStyle={{ padding: screens.xs ? 12 : 24 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: screens.xs ? "stretch" : "center", marginBottom: 20, flexDirection: screens.xs ? "column" : "row", gap: 16 }}>
 
@@ -391,6 +477,24 @@ const screens = useBreakpoint();
                         return (
                             <div
                                 key={item.name}
+                                onClick={() => {
+
+            if (
+                province !== "ALL" &&
+                woGroup !== "ALL"
+            ) {
+
+                setSelectedEmployee(
+                    item.name
+                );
+
+                setEmployeeModalOpen(
+                    true
+                );
+
+            }
+
+        }}
                                 style={{
                                     background:
                                         "#e1f4fa",
@@ -502,9 +606,104 @@ const screens = useBreakpoint();
                 )}
             </div>
 
-        </Card>
+                </Card>
 
-    );
+        <Modal
+            open={employeeModalOpen}
+            footer={null}
+            width={1200}
+    style={{
+        top: 30,
+    }}
+            onCancel={() => {
+
+                setEmployeeModalOpen(
+                    false
+                );
+
+            }}
+            title={
+                `WO quá hạn của ${selectedEmployee}`
+            }
+        >
+
+            <ResponsiveContainer
+    width="100%"
+    height={
+        Math.max(
+            400,
+            employeeChartData.length * 30
+        )
+    }
+>
+
+                <BarChart
+    data={employeeChartData}
+    layout="vertical"
+    margin={{
+        top: 20,
+        right: 20,
+        left: 10,
+        bottom: 20,
+    }}
+>
+
+                    <CartesianGrid
+                        strokeDasharray="3 3"
+                    />
+
+                    <XAxis
+    type="number"
+/>
+
+<YAxis
+    type="category"
+    dataKey="type"
+    width={290}
+/>
+
+
+                    <Tooltip />
+
+                    <Bar
+    dataKey="count"
+    radius={[0, 8, 8, 0]}
+>
+    {
+        employeeChartData.map(
+            (
+                entry,
+                index
+            ) => (
+
+                <Cell
+                    key={index}
+                    fill={
+                        COLORS[
+                            index %
+                            COLORS.length
+                        ]
+                    }
+                />
+
+            )
+        )
+    }
+    <LabelList
+    dataKey="count"
+    position="right"
+/>
+</Bar>
+
+                </BarChart>
+
+            </ResponsiveContainer>
+
+        </Modal>
+
+    </>
+);
+
 
 }
 

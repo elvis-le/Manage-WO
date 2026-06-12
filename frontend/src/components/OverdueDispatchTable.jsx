@@ -4,7 +4,7 @@ import {
     Input,
     Typography,
     ConfigProvider,
-    Grid,
+    Grid, Select,
 } from "antd";
 
 import {
@@ -16,21 +16,132 @@ import {
     useState,
 } from "react";
 
-const { Title } = Typography;
+const {Title} = Typography;
 
 function OverdueDispatchTable({
-    rows,
-}) {
+                                  rows,
+                              }) {
 
-    const { useBreakpoint } = Grid;
+    const [searchText, setSearchText] =
+        useState("");
+
+    const [province, setProvince] =
+        useState("ALL");
+
+    const [woGroup, setWoGroup] =
+        useState("ALL");
+
+    const [coordGroup, setCoordGroup] =
+        useState("ALL");
+
+    const {useBreakpoint} = Grid;
 
     const screens =
         useBreakpoint();
 
-    const [
-        searchText,
-        setSearchText,
-    ] = useState("");
+    const provinces = useMemo(
+    () => [
+
+        "ALL",
+
+        ...new Set(
+
+            rows
+                .filter(
+                    x =>
+                        !x.completed &&
+                        x.overdue &&
+                        x.employee
+                )
+
+                .map(
+                    x => x.province
+                )
+
+                .filter(Boolean)
+
+        ),
+
+    ],
+
+    [rows]
+);
+
+    const woGroups = useMemo(() => {
+
+        const filtered = rows.filter(
+    x =>
+                        !x.completed &&
+        x.overdue &&
+        x.employee
+);
+
+        return [
+            "ALL",
+            ...new Set(
+                filtered
+                    .map(
+                        x => x.wo_group
+                    )
+                    .filter(Boolean)
+            ),
+        ];
+
+    }, [
+        rows,
+        province,
+    ]);
+
+    const coordGroups = useMemo(() => {
+
+        let filtered = rows.filter(
+    x =>
+        !x.completed &&
+        x.overdue &&
+        x.employee
+);
+
+        if (
+            province !== "ALL"
+        ) {
+
+            filtered =
+                filtered.filter(
+                    x =>
+                        x.province ===
+                        province
+                );
+        }
+
+        if (
+            woGroup !== "ALL"
+        ) {
+
+            filtered =
+                filtered.filter(
+                    x =>
+                        x.wo_group ===
+                        woGroup
+                );
+        }
+
+        return [
+            "ALL",
+            ...new Set(
+                filtered
+                    .map(
+                        x =>
+                            x.coord_group
+                    )
+                    .filter(Boolean)
+            ),
+        ];
+
+    }, [
+        rows,
+        province,
+        woGroup,
+    ]);
 
     const tableData =
         useMemo(() => {
@@ -38,10 +149,45 @@ function OverdueDispatchTable({
             let result =
                 rows.filter(
                     row =>
-                        row.pending &&
+                        !row.completed &&
                         row.overdue &&
                         row.employee
                 );
+            if (
+                province !== "ALL"
+            ) {
+
+                result =
+                    result.filter(
+                        x =>
+                            x.province ===
+                            province
+                    );
+            }
+
+            if (
+                woGroup !== "ALL"
+            ) {
+
+                result =
+                    result.filter(
+                        x =>
+                            x.wo_group ===
+                            woGroup
+                    );
+            }
+
+            if (
+                coordGroup !== "ALL"
+            ) {
+
+                result =
+                    result.filter(
+                        x =>
+                            x.coord_group ===
+                            coordGroup
+                    );
+            }
 
             if (
                 searchText.trim()
@@ -79,6 +225,11 @@ function OverdueDispatchTable({
                     );
             }
 
+            console.log(
+    "Filtered WO:",
+    result.length
+);
+
             const grouped =
                 {};
 
@@ -97,18 +248,18 @@ function OverdueDispatchTable({
 
                         grouped[
                             key
-                        ] = {
+                            ] = {
 
                             key,
 
                             employee:
-                                row.employee,
+                            row.employee,
 
                             district:
-                                row.district,
+                            row.district,
 
                             province:
-                                row.province,
+                            row.province,
 
                             total_overdue:
                                 0,
@@ -120,7 +271,7 @@ function OverdueDispatchTable({
 
                     grouped[
                         key
-                    ].total_overdue++;
+                        ].total_overdue++;
 
                     const system =
                         row.system_name ||
@@ -203,10 +354,17 @@ function OverdueDispatchTable({
                     })
                 );
 
+
         }, [
-            rows,
-            searchText,
-        ]);
+    rows,
+    searchText,
+    province,
+    woGroup,
+    coordGroup,
+])
+
+
+
 
     const columns = [
 
@@ -272,9 +430,7 @@ function OverdueDispatchTable({
                     ) {
                         color =
                             "#cf1322";
-                    }
-
-                    else if (
+                    } else if (
                         value >=
                         5
                     ) {
@@ -337,8 +493,6 @@ function OverdueDispatchTable({
     return (
         <Card
             style={{
-                marginTop:
-                    24,
 
                 borderRadius:
                     16,
@@ -377,42 +531,131 @@ function OverdueDispatchTable({
                 Quá Hạn
             </Title>
 
-            <Input
-                prefix={
-                    <SearchOutlined />
-                }
-
-                placeholder="
-Tìm nhân viên, huyện, tỉnh..."
-
-                allowClear
-
-                value={
-                    searchText
-                }
-
-                onChange={
-                    e =>
-                        setSearchText(
-                            e.target
-                                .value
-                        )
-                }
-
+            <div
                 style={{
-                    marginBottom:
-                        16,
-
-                    maxWidth:
-                        350,
-
-                    background:
-                        "#e1f4fa",
-
-                    border:
-                        "1px solid #18bdf0",
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 12,
+                    marginBottom: 20,
+                    alignItems: "center",
                 }}
-            />
+            >
+
+                <Input
+                    prefix={<SearchOutlined/>}
+                    placeholder="Tìm kiếm..."
+                    allowClear
+                    value={searchText}
+                    onChange={e =>
+                        setSearchText(
+                            e.target.value
+                        )
+                    }
+                    style={{
+                        flex:
+                            screens.xs
+                                ? "1 1 100%"
+                                : "1 1 280px",
+
+                        maxWidth:
+                            screens.xs
+                                ? "100%"
+                                : 320,
+
+                        background:
+                            "#e1f4fa",
+
+                        border:
+                            "1px solid #18bdf0",
+                    }}
+                />
+
+                <Select
+                    value={province}
+                    style={{
+                        width:
+                            screens.xs
+                                ? "100%"
+                                : 150,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
+                    }}
+                    onChange={value => {
+
+                        setProvince(
+                            value
+                        );
+
+                        setWoGroup(
+                            "ALL"
+                        );
+
+                        setCoordGroup(
+                            "ALL"
+                        );
+                    }}
+                >
+                    {provinces.map(
+                        p => (
+                            <Select.Option
+                                key={p}
+                                value={p}
+                            >
+                                {p}
+                            </Select.Option>
+                        )
+                    )}
+                </Select>
+
+                <Select
+                    value={woGroup}
+                    style={{
+                        width:
+                            screens.xs
+                                ? "100%"
+                                : 180,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
+                    }}
+                    onChange={setWoGroup}
+                >
+                    {woGroups.map(
+                        g => (
+                            <Select.Option
+                                key={g}
+                                value={g}
+                            >
+                                {g}
+                            </Select.Option>
+                        )
+                    )}
+                </Select>
+
+                <Select
+                    value={coordGroup}
+                    style={{
+                        width:
+                            screens.xs
+                                ? "100%"
+                                : 180,
+                            background: "#e1f4fa",
+                            border: "1px solid #18bdf0"
+                    }}
+                    onChange={setCoordGroup}
+                >
+                    {coordGroups.map(
+                        g => (
+                            <Select.Option
+                                key={g}
+                                value={g}
+                            >
+                                {g}
+                            </Select.Option>
+                        )
+                    )}
+                </Select>
+
+            </div>
 
             <ConfigProvider
                 theme={{
