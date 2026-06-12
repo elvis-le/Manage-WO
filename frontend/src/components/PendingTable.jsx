@@ -150,64 +150,54 @@ const screens = useBreakpoint();
             if (!grouped[key]) {
 
                 grouped[key] = {
-                    key,
+    key,
 
-                    province:
-                        row.province,
+    province: row.province,
 
-                    coord_group:
-                        row.coord_group,
+    coord_group: row.coord_group,
 
-                    employee:
-                        row.employee,
+    employee: row.employee,
 
-                    total_pending: 0,
+    total_pending: 0,
 
-    total_overdue: 0,
+    overdue: {},
 
-                    near_due: {},
-
-                    overdue_5: {},
-                };
+    overdue_5: {},
+};
 
                 dynamicWoGroups.forEach(group => {
 
                     grouped[key]
-                        .near_due[group] = 0;
+    .overdue[group] = 0;
 
-                    grouped[key]
-                        .overdue_5[group] = 0;
+grouped[key]
+    .overdue_5[group] = 0;
                 });
             }
+
+
+            const group =
+                row.wo_group;
+
 
             if (row.pending) {
     grouped[key].total_pending += 1;
 }
 
-            if (row.overdue) {
-    grouped[key]
-        .total_overdue += 1;
+           if (row.overdue && group) {
+
+    grouped[key].overdue[group] =
+    (grouped[key].overdue[group] || 0) + 1;
 }
 
-            const group =
-                row.wo_group;
-
-            if (
-                row.near_due
-                &&
-                group
-            ) {
-                grouped[key]
-                    .near_due[group] += 1;
-            }
 
             if (
                 (row.overdue_day || 0) > 5
                 &&
                 group
             ) {
-                grouped[key]
-                    .overdue_5[group] += 1;
+                grouped[key].overdue_5[group] =
+    (grouped[key].overdue_5[group] || 0) + 1;
             }
 
         });
@@ -266,26 +256,19 @@ const screens = useBreakpoint();
         },
 
         {
-    title: "Tổng WO Tồn Quá Hạn",
-    dataIndex: "total_overdue",
-    width: 160,
-    align: "center",
+    title: "WO Tồn Quá Hạn",
+
+    children:
+        dynamicWoGroups.map(
+            group => ({
+                title: group,
+                width: 90,
+                align: "center",
+                render: (_, row) =>
+                    row.overdue[group] || 0,
+            })
+        ),
 },
-
-        {
-            title: "WO Sắp Quá Hạn 1-3 ngày",
-
-            children:
-                dynamicWoGroups.map(
-                    group => ({
-                        title: group,
-                        width: 90,
-                        align: "center",
-                        render: (_, row) =>
-                            row.near_due[group] || 0,
-                    })
-                ),
-        },
 
         {
             title: "WO Quá Hạn > 5 Ngày",
