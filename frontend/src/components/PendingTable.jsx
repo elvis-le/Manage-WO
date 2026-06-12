@@ -234,79 +234,32 @@ grouped[key]
 
 
     const columns = [
-
-        {
-            title: "STT",
-            dataIndex: "stt",
-            width: 80,
+    { title: "STT", dataIndex: "stt", width: 50, align: "center", fixed: "left" },
+    { title: "Tỉnh", dataIndex: "province", width: 80, align: "center" },
+    { title: "Nhóm ĐP", dataIndex: "coord_group", width: 120, responsive: ['md'] },
+    { title: "Nhân viên", dataIndex: "employee", width: 100, fixed: "left" },
+    { title: "Tổng Tồn", dataIndex: "total_pending", width: 90, align: "center" },
+    { title: "Tổng Quá Hạn", dataIndex: "total_overdue", width: 100, align: "center" },
+    {
+        title: "WO Quá Hạn",
+        children: dynamicWoGroups.map(group => ({
+            title: group,
+            width: 70,
             align: "center",
-            fixed: "left",
-        },
-
-        {
-            title: "Mã Tỉnh",
-            dataIndex: "province",
-            width: 120,
+            render: (_, row) => row.overdue[group] || 0,
+        })),
+    },
+    {
+        title: "WO Sắp Quá Hạn 1-3 Ngày",
+        children: dynamicWoGroups.map(group => ({
+            title: group,
+            width: 70,
             align: "center",
-        },
+            render: (_, row) => row.near_due[group] || 0,
+        })),
+    },
 
-        {
-            title: "Nhóm điều phối",
-            dataIndex: "coord_group",
-            width: 220,
-        },
-
-        {
-            title: "Tên Nhân Viên",
-            dataIndex: "employee",
-            width: 180,
-    fixed: "left",
-        },
-
-        {
-            title: "Tổng WO Tồn",
-            dataIndex: "total_pending",
-            width: 130,
-            align: "center",
-        },
-
-        {
-    title: "Tổng WO Tồn Quá Hạn",
-    dataIndex: "total_overdue",
-    width: 160,
-    align: "center",
-},
-
-        {
-    title: "WO Tồn Quá Hạn",
-
-    children:
-        dynamicWoGroups.map(
-            group => ({
-                title: group,
-                width: 90,
-                align: "center",
-                render: (_, row) =>
-                    row.overdue[group] || 0,
-            })
-        ),
-},
-
-        {
-    title: "WO Sắp Quá Hạn 1-3 Ngày",
-
-    children:
-        dynamicWoGroups.map(
-            group => ({
-                title: group,
-                width: 90,
-                align: "center",
-                render: (_, row) =>
-                    row.near_due[group] || 0,
-            })
-        ),
-},
-    ];
+];
 
 
     return (
@@ -347,14 +300,19 @@ grouped[key]
 
             <ConfigProvider theme={{ components: { Table: { headerBg: "#e1f4fa", colorBgContainer: "#e1f4fa", rowHoverBg: "#e1f4fa", borderColor: "#18bdf0" } } }}>
                 <Table
-                    rowKey="key"
-                    columns={columns}
-                    dataSource={tableData}
-                    bordered
-                    size={screens.xs ? "small" : "middle"}
-                    pagination={{ pageSize: 12, showSizeChanger: true, showTotal: total => `Tổng ${total} dòng` }}
-                    scroll={{ x: 1000 }} // Fix cứng x để ép thanh cuộn ngang xuất hiện mượt hơn
-                />
+    rowKey="key"
+    columns={columns}
+    dataSource={tableData}
+    bordered
+    size={screens.xs ? "small" : "middle"}
+    pagination={{
+        pageSize: screens.xs ? 5 : 12,
+        showSizeChanger: !screens.xs,
+        showTotal: total => `Tổng ${total} dòng`
+    }}
+    // Thiết lập scroll linh hoạt cho mobile
+    scroll={{ x: screens.xs ? 600 : 1200 }}
+/>
             </ConfigProvider>
         </Card>
     );

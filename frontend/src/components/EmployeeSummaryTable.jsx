@@ -192,7 +192,7 @@ const screens = useBreakpoint();
     const columns = [
     { title: "STT", dataIndex: "stt", width: 50, align: "center" },
     { title: "Tỉnh", dataIndex: "province", width: 80, align: "center" },
-    { title: "Nhân viên", dataIndex: "employee", width: 150 },
+    { title: "Nhân viên", dataIndex: "employee", width: 80 },
     {
         title: "SĐT",
         dataIndex: "phone",
@@ -206,12 +206,12 @@ const screens = useBreakpoint();
         width: 150,
         responsive: ['md']
     },
-    { title: "Tồn", dataIndex: "total_pending", width: 80, align: "center" },
-    { title: "Quá hạn", dataIndex: "total_overdue", width: 90, align: "center" },
+    { title: "Tồn", dataIndex: "total_pending", width: 60, align: "center" },
+    { title: "Quá hạn", dataIndex: "total_overdue", width: 80, align: "center" },
     {
         title: ">5 ngày",
         dataIndex: "overdue_5",
-        width: 90,
+        width: 70,
         align: "center",
         responsive: ['sm']
     },
