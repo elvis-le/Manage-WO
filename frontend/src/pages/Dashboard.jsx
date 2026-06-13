@@ -1,24 +1,16 @@
-import {useState, useMemo, useEffect} from "react";
-import { getWorkOrders } from "../services/dashboardService";
-
-import {
-    Row,
-    Col,
-    Card,
-    Select,
-    Typography,
-    Space,
-    Button, Grid,
-} from "antd";
+import { useState, useMemo, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { DataContext } from "../context/DataContext";
+import { useNavigate } from "react-router-dom";
+import { Row, Col, Card, Typography, Space, Button, Spin, Select } from "antd";
 
 import {
     FilterOutlined,
-    ReloadOutlined,
+    SettingOutlined,
+    LogoutOutlined,
 } from "@ant-design/icons";
 
-import SLAStatusChart from "../components/SLAStatusChart";
 import KPICards from "../components/KPICards";
-import PriorityPieChart from "../components/PriorityPieChart";
 import ProvinceBarChart from "../components/ProvinceBarChart";
 import EmployeeBarChart from "../components/EmployeeBarChart";
 import TopProvinceChart from "../components/TopProvinceChart";
@@ -28,271 +20,264 @@ import UnderperformingHorizontalBarChart from "../components/UnderperformingHori
 import EmployeeSummaryTable from "../components/EmployeeSummaryTable.jsx";
 import OverdueDispatchTable from "../components/OverdueDispatchTable.jsx";
 
-const {Title, Text} = Typography;
+const { Title, Text } = Typography;
 
 function Dashboard() {
+    const navigate = useNavigate();
 
-    const [rows, setRows] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // Nhận dữ liệu tập trung được load tự động khi vừa vào trang web
+    const { user, logout } = useContext(AuthContext);
+    const { rows, loadingData } = useContext(DataContext);
 
-    useEffect(() => {
-        loadData();
-    }, []);
+    // Các trạng thái bộ lọc tổng
+    const [year, setYear] = useState("ALL");
+    const [month, setMonth] = useState("ALL");
+    const [province, setProvince] = useState("ALL");
+    const [woGroup, setWoGroup] = useState("ALL");
 
-    const loadData = async () => {
-        try {
-            const res = await getWorkOrders();
+    // Hàm bóc tách chuỗi ngày tháng đa định dạng, chống lệch múi giờ và tương thích mọi kiểu chuỗi (ISO, DD/MM/YYYY, YYYY-MM-DD)
+    const parseDateHelper = (createdAt) => {
+        if (!createdAt) return { yearStr: null, monthStr: null };
+        const str = String(createdAt).trim();
 
-            setRows(res.data.rows || []);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
+        // Trích xuất riêng phần ngày, loại bỏ phần giờ hoặc ký tự 'T' nếu là chuỗi ISO
+        const datePart = str.split('T')[0].split(' ')[0];
+
+        // Xác định dấu phân cách là gạch chéo '/' hoặc gạch ngang '-'
+        const separator = datePart.includes('/') ? '/' : (datePart.includes('-') ? '-' : null);
+
+        if (separator) {
+            const parts = datePart.split(separator);
+            if (parts.length >= 3) {
+                // Tìm thành phần có 4 chữ số để làm Năm (ví dụ: 2026)
+                let y = parts.find(p => p.length === 4);
+                // Đối với các định dạng phổ biến (YYYY-MM-DD hoặc DD/MM/YYYY), Tháng luôn nằm ở vị trí giữa (index 1)
+                let m = parts[1];
+
+                // Dự phòng nếu năm chỉ có 2 chữ số (YY)
+                if (!y) {
+                    y = parts[2].length === 2 ? `20${parts[2]}` : parts[0];
+                }
+
+                if (y && m) {
+                    return {
+                        yearStr: y.toString(),
+                        monthStr: parseInt(m, 10).toString()
+                    };
+                }
+            }
         }
+
+        // Cơ chế dự phòng cuối cùng bằng đối tượng Date nguyên bản của JavaScript
+        const dateObj = new Date(createdAt);
+        if (!isNaN(dateObj.getTime())) {
+            return {
+                yearStr: dateObj.getFullYear().toString(),
+                monthStr: (dateObj.getMonth() + 1).toString()
+            };
+        }
+
+        return { yearStr: null, monthStr: null };
     };
 
-    const [month, setMonth] =
-        useState("ALL");
-
-    const [year, setYear] =
-        useState("ALL");
-
-    const [woGroup, setWoGroup] =
-        useState("ALL");
-
-    const [province, setProvince] =
-        useState("ALL");
-
-    const woGroups = useMemo(
-        () => [
-            "ALL",
-            ...new Set(
-                rows
-                    .map(x => x.wo_group)
-                    .filter(Boolean)
-            ),
-        ],
-        [rows]
-    );
-
-    const provinces = useMemo(
-        () => [
-            "ALL",
-            ...new Set(
-                rows
-                    .map(x => x.province)
-                    .filter(Boolean)
-            ),
-        ],
-        [rows]
-    );
-
-
-    const years = useMemo(() => {
-
-        const arr =
-            rows
-                .filter(
-                    x => x.created_time
-                )
-                .map(
-                    x =>
-                        new Date(
-                            x.created_time
-                        ).getFullYear()
-                );
-
-        return [
-            "ALL",
-            ...new Set(arr)
-        ];
-
+    // Tự động xây dựng danh sách Năm từ dữ liệu rows
+    const listYears = useMemo(() => {
+        const years = rows.map(x => parseDateHelper(x.created_time).yearStr).filter(Boolean);
+        return ["ALL", ...new Set(years)].sort((a, b) => b - a);
     }, [rows]);
 
+    // Tự động xây dựng danh sách Tháng từ dữ liệu rows
+    const listMonths = useMemo(() => {
+        const months = rows.map(x => parseDateHelper(x.created_time).monthStr).filter(Boolean);
+        return ["ALL", ...new Set(months)].sort((a, b) => a - b);
+    }, [rows]);
 
-    const filteredRows =
-        useMemo(() => {
+    // Tự động xây dựng danh sách Tỉnh/Thành từ dữ liệu rows
+    const listProvinces = useMemo(() => {
+        const provinces = rows.map(x => x.province).filter(Boolean);
+        return ["ALL", ...new Set(provinces)].sort();
+    }, [rows]);
 
-            let result = [...rows];
+    // Tự động xây dựng danh sách Nhóm Work Order từ dữ liệu rows
+    const listWoGroups = useMemo(() => {
+        const groups = rows.map(x => x.wo_group).filter(Boolean);
+        return ["ALL", ...new Set(groups)].sort();
+    }, [rows]);
 
-            if (
-                year !== "ALL"
-            ) {
+    // Thực hiện tính toán lọc dữ liệu đồng bộ
+    const filteredRows = useMemo(() => {
+        return rows.filter(x => {
+            const { yearStr, monthStr } = parseDateHelper(x.created_time);
 
-                result =
-                    result.filter(
-                        row => {
+            if (year !== "ALL" && yearStr !== year) return false;
+            if (month !== "ALL" && monthStr !== month) return false;
+            if (province !== "ALL" && x.province !== province) return false;
+            if (woGroup !== "ALL" && x.wo_group !== woGroup) return false;
 
-                            if (
-                                !row.created_time
-                            ) return false;
+            return true;
+        });
+    }, [rows, year, month, province, woGroup]);
 
-                            return (
-                                new Date(
-                                    row.created_time
-                                ).getFullYear()
-                                === Number(year)
-                            );
-
-                        }
-                    );
-            }
-
-            if (
-                month !== "ALL"
-            ) {
-
-                result =
-                    result.filter(
-                        row => {
-
-                            if (
-                                !row.created_time
-                            ) return false;
-
-                            return (
-                                new Date(
-                                    row.created_time
-                                ).getMonth() + 1
-                                === Number(month)
-                            );
-
-                        }
-                    );
-            }
-
-            if (woGroup !== "ALL") {
-
-                result =
-                    result.filter(
-                        row =>
-                            row.wo_group === woGroup
-                    );
-
-            }
-
-            if (province !== "ALL") {
-
-                result =
-                    result.filter(
-                        row =>
-                            row.province === province
-                    );
-
-            }
-
-            return result;
-
-        }, [
-            rows,
-            month,
-            year,
-            woGroup,
-            province,
-        ]);
-
-    const { useBreakpoint } = Grid;
-    const screens = useBreakpoint();
-
-    // Các state cũ của bạn giữ nguyên
-
-    if (loading) {
-        return (
-            <div style={{ minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                Loading...
-            </div>
-        );
-    }
+    console.log("months: " + listMonths);
+    console.log("years: " + listYears);
 
     return (
-        <div style={{padding: screens.xs ? 12 : 24, minHeight: "100vh", background: "#ebf8fc"}}>
-            <div style={{marginBottom: 20}}>
-                <Title level={screens.xs ? 4 : 3} style={{marginBottom: 0}}>
-                    Dashboard VCC3 - Tiến độ thực hiện công việc
-                </Title>
-                <Text style={{color: "#8c8c8c"}}>Giám sát Work Order & SLA</Text>
-            </div>
-
-            {/* BỘ LỌC TỔNG */}
-            <Card style={{marginBottom: 20, borderRadius: 16, background: "#ebf8fc", border: "1px solid #18bdf0"}}
-                  bodyStyle={{padding: screens.xs ? 12 : 20}}>
-                <Row gutter={[16, 16]} align="middle" justify="space-between">
-                    <Col xs={24} lg={6}>
-                        <Space size={16}>
-                            <FilterOutlined style={{color: "#1677ff", fontSize: 20}}/>
-                            <div>
-                                <div style={{fontWeight: 600}}>Bộ lọc hệ thống</div>
-                                <div style={{color: "#8c8c8c", fontSize: 12}}>Áp dụng toàn bộ dashboard</div>
-                            </div>
+        <div style={{ padding: "20px", background: "#f0f2f5", minHeight: "100vh" }}>
+            <Card style={{ marginBottom: 20 }}>
+                {/* Thanh tiêu đề & Thông tin tài khoản */}
+                <Row justify="space-between" align="middle" gutter={[16, 16]}>
+                    <Col xs={24} sm={12}>
+                        <Title level={4} style={{ margin: 0, paddingBottom: 4 }}>
+                            Hệ Thống Giám Sát Work Order
+                        </Title>
+                        {user && (
+                            <Text type="secondary">
+                                Tài khoản: <strong style={{ color: "#1677ff" }}>{user.name || user.username}</strong>
+                            </Text>
+                        )}
+                    </Col>
+                    <Col xs={24} sm={12} style={{ textAlign: "right" }}>
+                        <Space>
+                            <Button
+                                icon={<SettingOutlined />}
+                                onClick={() => navigate("/settings")}
+                            >
+                                Cấu hình
+                            </Button>
+                            <Button
+                                type="primary"
+                                danger
+                                icon={<LogoutOutlined />}
+                                onClick={logout}
+                            >
+                                Đăng xuất
+                            </Button>
                         </Space>
                     </Col>
-                    <Col xs={24} lg={18} style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        gap: 12,
-                        justifyContent: screens.lg ? 'flex-end' : 'flex-start'
-                    }}>
-                        <Select value={year} onChange={setYear}
-                                style={{width: screens.xs ? "100%" : 120, border: "1px solid #18bdf0"}}>
-                            {years.map(y => (
-                                <Select.Option key={y} value={y}>{y === "ALL" ? "Tất cả năm" : y}</Select.Option>
-                            ))}
-                        </Select>
-                        <Select value={month} onChange={setMonth}
-                                style={{width: screens.xs ? "100%" : 140, border: "1px solid #18bdf0"}}>
-                            <Select.Option value="ALL">Tất cả tháng</Select.Option>
-                            {Array.from({length: 12}, (_, i) => i + 1).map(m => (
-                                <Select.Option key={m} value={String(m)}>Tháng {m}</Select.Option>
-                            ))}
-                        </Select>
-                        <Select value={woGroup} onChange={setWoGroup}
-                                style={{flex: "1 1 150px", border: "1px solid #18bdf0"}}>
-                            {woGroups.map(g => (
-                                <Select.Option key={g} value={g}>{g === "ALL" ? "Tất cả nhóm WO" : g}</Select.Option>
-                            ))}
-                        </Select>
-                        <Select value={province} onChange={setProvince}
-                                style={{flex: "1 1 150px", border: "1px solid #18bdf0"}}>
-                            {provinces.map(p => (
-                                <Select.Option key={p} value={p}>{p === "ALL" ? "Tất cả tỉnh" : p}</Select.Option>
-                            ))}
-                        </Select>
-                        <Button danger icon={<ReloadOutlined/>} style={{width: screens.xs ? "100%" : "auto"}}
-                                onClick={() => {
-                                    setMonth("ALL");
-                                    setYear("ALL");
-                                    setWoGroup("ALL");
-                                    setProvince("ALL");
-                                }}>
-                            Reset
-                        </Button>
-                    </Col>
                 </Row>
+
+                {/* Khu vực chứa 4 bộ lọc đồng bộ */}
+                <div style={{ marginTop: 20, paddingTop: 20, borderTop: "1px solid #f0f0f0" }}>
+                    <Row gutter={[16, 16]} align="bottom">
+                        <Col xs={12} sm={6} md={4}>
+                            <Text strong style={{ display: "block", marginBottom: 8 }}>Năm:</Text>
+                            <Select
+                                style={{ width: "100%" }}
+                                value={year}
+                                onChange={setYear}
+                                options={listYears.map(y => ({
+                                    label: y === "ALL" ? "Tất cả" : `Năm ${y}`,
+                                    value: y
+                                }))}
+                            />
+                        </Col>
+
+                        <Col xs={12} sm={6} md={4}>
+                            <Text strong style={{ display: "block", marginBottom: 8 }}>Tháng:</Text>
+                            <Select
+                                style={{ width: "100%" }}
+                                value={month}
+                                onChange={setMonth}
+                                options={listMonths.map(m => ({
+                                    label: m === "ALL" ? "Tất cả" : `Tháng ${m}`,
+                                    value: m
+                                }))}
+                            />
+                        </Col>
+
+                        <Col xs={24} sm={12} md={6}>
+                            <Text strong style={{ display: "block", marginBottom: 8 }}>Tỉnh / Thành phố:</Text>
+                            <Select
+                                style={{ width: "100%" }}
+                                value={province}
+                                onChange={setProvince}
+                                showSearch
+                                filterOption={(input, option) =>
+                                    (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={listProvinces.map(p => ({
+                                    label: p === "ALL" ? "-- Tất cả Tỉnh/Thành --" : p,
+                                    value: p
+                                }))}
+                            />
+                        </Col>
+
+                        <Col xs={24} sm={12} md={6}>
+                            <Text strong style={{ display: "block", marginBottom: 8 }}>Nhóm Work Order:</Text>
+                            <Select
+                                style={{ width: "100%" }}
+                                value={woGroup}
+                                onChange={setWoGroup}
+                                showSearch
+                                filterOption={(input, option) =>
+                                    (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={listWoGroups.map(g => ({
+                                    label: g === "ALL" ? "-- Tất cả Nhóm WO --" : g,
+                                    value: g
+                                }))}
+                            />
+                        </Col>
+
+                        <Col xs={24} sm={24} md={4}>
+                            <Button
+                                block
+                                icon={<FilterOutlined />}
+                                onClick={() => {
+                                    setYear("ALL");
+                                    setMonth("ALL");
+                                    setProvince("ALL");
+                                    setWoGroup("ALL");
+                                }}
+                            >
+                                Đặt lại bộ lọc
+                            </Button>
+                        </Col>
+                    </Row>
+                </div>
             </Card>
 
-            <KPICards rows={filteredRows}/>
+            {/* Trạng thái Spinner khi Context đang tải dữ liệu */}
+            <Spin spinning={loadingData} tip="Hệ thống đang tải dữ liệu thời gian thực..." size="large">
+                <KPICards rows={filteredRows} />
 
-            <Row gutter={[20, 20]} style={{marginTop: 20}}>
-                <Col xs={24} lg={12}><ProvinceBarChart rows={filteredRows}/></Col>
-                <Col xs={24} lg={12}><FineBarChart rows={filteredRows}/></Col>
-            </Row>
+                <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
+                    <Col xs={24} lg={12}>
+                        <ProvinceBarChart rows={filteredRows} />
+                    </Col>
+                    <Col xs={24} lg={12}>
+                        <FineBarChart rows={filteredRows} />
+                    </Col>
+                </Row>
 
-            <Row gutter={[20, 20]} style={{marginTop: 20}}>
-                <Col xs={24} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
-                <Col xs={24} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
-            </Row>
+                <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
+                    <Col xs={24} lg={12}>
+                        <TopProvinceChart rows={filteredRows} />
+                    </Col>
+                    <Col xs={24} lg={12}>
+                        <EmployeeBarChart rows={filteredRows} />
+                    </Col>
+                </Row>
 
-            {/* BỌC TABLE BẰNG DIV OVERFLOW */}
-            <div style={{overflowX: "hidden", marginTop: 20, width: "100%"}}>
-                <PendingTable rows={filteredRows}/>
-            </div>
+                <div style={{ overflowX: "hidden", marginTop: 20, width: "100%" }}>
+                    <PendingTable rows={filteredRows} />
+                </div>
 
-            <Row gutter={[20, 20]} style={{marginTop: 20}}>
-                <Col xs={24} lg={12}><UnderperformingHorizontalBarChart rows={filteredRows}/></Col>
-                <Col xs={24} lg={12}><EmployeeSummaryTable rows={filteredRows}/></Col>
-            </Row>
+                <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
+                    <Col xs={24} lg={12}>
+                        <UnderperformingHorizontalBarChart rows={filteredRows} />
+                    </Col>
+                    <Col xs={24} lg={12}>
+                        <OverdueDispatchTable rows={filteredRows} />
+                    </Col>
+                </Row>
+
+                <div style={{ marginTop: 20 }}>
+                    <EmployeeSummaryTable rows={filteredRows} />
+                </div>
+            </Spin>
         </div>
     );
-};
+}
 
 export default Dashboard;
