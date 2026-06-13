@@ -278,8 +278,8 @@ function Dashboard() {
             </Row>
 
             <Row gutter={[20, 20]} style={{marginTop: 20}}>
-                <Col xs={16} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
-                <Col xs={16} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
+                <Col xs={24} lg={12}><TopProvinceChart rows={filteredRows}/></Col>
+                <Col xs={24} lg={12}><EmployeeBarChart rows={filteredRows}/></Col>
             </Row>
 
             {/* BỌC TABLE BẰNG DIV OVERFLOW */}
