@@ -11,7 +11,7 @@ from .models import WorkOrder, DispatchAssignment
 @api_view(["GET"])
 def work_orders(request):
 
-    batch_id = 1
+    batch_id = 2
 
     queryset = WorkOrder.objects.all()
 
