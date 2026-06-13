@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/" // Thay thế bằng URL Railway khi deploy
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Interceptor tự động thêm Bearer Token cho mọi request
