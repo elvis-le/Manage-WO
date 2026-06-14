@@ -10,15 +10,19 @@ export function DataProvider({ children }) {
     const [loadingData, setLoadingData] = useState(true);
 
     // Effect này chạy NGAY LẬP TỨC khi user có dữ liệu (đã đăng nhập hoặc reload lại trang khi đã có token)
+    // useEffect(() => {
+    //     if (user) {
+    //         fetchData();
+    //     } else {
+    //         // Nếu đăng xuất, xóa trắng dữ liệu để bảo mật
+    //         setRows([]);
+    //         setLoadingData(false);
+    //     }
+    // }, [user]);
+    //
     useEffect(() => {
-        if (user) {
-            fetchData();
-        } else {
-            // Nếu đăng xuất, xóa trắng dữ liệu để bảo mật
-            setRows([]);
-            setLoadingData(false);
-        }
-    }, [user]);
+        fetchData();
+    }, []);
 
     const fetchData = async () => {
         setLoadingData(true);

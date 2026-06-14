@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import date, timedelta
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.contrib.auth.models import User
@@ -113,7 +113,9 @@ def user_detail_action(request, user_id):
 
 
 @api_view(["GET"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def work_orders(request):
     # Luôn lấy batch mới nhất vừa được import
     latest_batch = ImportBatch.objects.order_by('-imported_at').first()
@@ -193,7 +195,7 @@ def work_orders(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
 def upload_excel(request):
     if not request.user.is_staff:
         return Response({"error": "Bạn không có quyền upload dữ liệu!"}, status=status.HTTP_403_FORBIDDEN)
