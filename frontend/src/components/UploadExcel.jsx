@@ -60,7 +60,7 @@ export default function UploadExcel({ setRows }) {
       reader.onload = (e) => {
         try {
           const data = new Uint8Array(e.target.result);
-          const workbook = XLSX.read(data, { type: "array" });
+          const workbook = XLSX.read(data, { type: "array", cellDates: true });
           const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 
           // Bỏ qua 6 dòng đầu (skiprows=6 trong Pandas)
@@ -142,7 +142,7 @@ export default function UploadExcel({ setRows }) {
     setIsUploading(true);
     try {
       // Gửi thẳng mảng JSON sạch này tới Django Backend
-      const response = await api.post("/admin/upload_excel/", {
+      const response = await api.post("/upload/", {
         data: mergedData,
         file_name: `Merged_${file1.name}_${file2.name}`
       });

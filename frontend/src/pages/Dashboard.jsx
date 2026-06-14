@@ -27,7 +27,9 @@ function Dashboard() {
 
     // Nhận dữ liệu tập trung được load tự động khi vừa vào trang web
     const { user, logout } = useContext(AuthContext);
-    const { rows, loadingData } = useContext(DataContext);
+    const { rows, productivityData, loadingData } = useContext(DataContext);
+
+    console.log("productivityData: " + productivityData);
 
     // Các trạng thái bộ lọc tổng
     const [year, setYear] = useState("ALL");
@@ -118,8 +120,25 @@ function Dashboard() {
         });
     }, [rows, year, month, province, woGroup]);
 
-    console.log("months: " + listMonths);
-    console.log("years: " + listYears);
+    if (loadingData && rows.length === 0) {
+        return (
+            <div style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "#ebf8fc", // Khớp với màu nền của trang
+                zIndex: 9999
+            }}>
+                <Spin size="large" description="Đang tải dữ liệu hệ thống..." />
+            </div>
+        );
+    }
 
     return (
         <div style={{ padding: "20px", background: "#f0f2f5", minHeight: "100vh" }}>
@@ -238,7 +257,7 @@ function Dashboard() {
             </Card>
 
             {/* Trạng thái Spinner khi Context đang tải dữ liệu */}
-            <Spin spinning={loadingData} tip="Hệ thống đang tải dữ liệu thời gian thực..." size="large">
+            {/*<Spin spinning={loadingData} description="Hệ thống đang tải dữ liệu thời gian thực..." size="large">*/}
                 <KPICards rows={filteredRows} />
 
                 <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
@@ -265,7 +284,7 @@ function Dashboard() {
 
                 <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
                     <Col xs={24} lg={12}>
-                        <UnderperformingHorizontalBarChart rows={filteredRows} />
+                        <UnderperformingHorizontalBarChart apiData={productivityData} />
                     </Col>
                     <Col xs={24} lg={12}>
                         <OverdueDispatchTable rows={filteredRows} />
@@ -275,7 +294,7 @@ function Dashboard() {
                 <div style={{ marginTop: 20 }}>
                     <EmployeeSummaryTable rows={filteredRows} />
                 </div>
-            </Spin>
+            {/*</Spin>*/}
         </div>
     );
 }

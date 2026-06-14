@@ -11,22 +11,23 @@ function AppRoutes() {
       <AuthProvider>
       <DataProvider>
         <Routes>
-          {/* Tạm tắt route login */}
-          {/* <Route path="/login" element={<LoginPage />} /> */}
+          
+          
 
-          {/* Truy cập thẳng vào Dashboard không qua kiểm tra Auth */}
+          
           <Route path="/" element={<Dashboard />} />
 
-          {/* Truy cập thẳng vào Admin không qua kiểm tra Role */}
+          
           <Route path="/admin" element={<AdminPage />} />
 
-          {/* Nếu nhập sai link, tự động đưa về Dashboard */}
+          
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </DataProvider>
     </AuthProvider>
+
+
     // <AuthProvider>
-    //   {/* Đặt DataProvider ở đây, mọi component con đều xài chung được data */}
     //   <DataProvider>
     //     <Routes>
     //       <Route path="/login" element={<LoginPage />} />

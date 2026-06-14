@@ -244,7 +244,17 @@ function PendingTable({ rows }) {
                                 />
 
                                 {/* Dời Legend xuống thấp hơn một chút */}
-                                <Legend wrapperStyle={{ bottom: 0, fontSize: screens.xs ? 11 : 13 }} />
+                                <Legend
+                            verticalAlign="top"
+                            align="center"
+                            iconType="circle"
+                            wrapperStyle={{
+                                fontSize: screens.xs ? 11 : 13,
+                                fontWeight: 600,
+                                paddingBottom: 20,
+                                color: "#334155"
+                            }}
+                        />
 
                                 {dynamicWoGroups.map((group, index) => {
                                     const isLast = index === dynamicWoGroups.length - 1;

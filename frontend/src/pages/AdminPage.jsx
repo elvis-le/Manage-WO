@@ -4,6 +4,10 @@ import { UserAddOutlined, LockOutlined, UnlockOutlined, DeleteOutlined, KeyOutli
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import UploadExcel from "../components/UploadExcel";
+
+// === MỚI THÊM: Import component UploadProductivity ===
+import UploadProductivity from "../components/UploadProductivity";
+
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
@@ -153,6 +157,9 @@ function AdminPage() {
           <UploadExcel setRows={() => { message.info("Dữ liệu đã được nạp lên máy chủ!"); }} />
         </div>
       </Card>
+
+      {/* === MỚI THÊM: Khu vực upload file năng suất FTNT === */}
+      <UploadProductivity onSuccess={() => { message.info("Đã đồng bộ dữ liệu năng suất!"); }} />
 
       <Card
         title="Quản Lý Tài Khoản Khách (Users)"

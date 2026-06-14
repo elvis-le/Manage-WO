@@ -61,6 +61,7 @@ const overdueUnder3WO =
   rows.filter(
     x =>
       x.overdue &&
+        !x.completed &&
       Number(x.overdue_day || 0) <= 5
   ).length;
 
@@ -68,6 +69,7 @@ const overdueOver3WO =
   rows.filter(
     x =>
       x.overdue &&
+        !x.completed &&
       Number(x.overdue_day || 0) > 5
   ).length;
 
@@ -170,9 +172,7 @@ const yesterdayText =
               border: "1px solid #d9f2ff",
               background: "#ebf8fc",
               boxShadow: "0 6px 16px rgba(0,0,0,.08)",
-            }}
-            bodyStyle={{
-              padding: screens.xs ? 16 : 20, // Thu nhỏ lề trong (padding) trên mobile
+                body: { padding: '20px' }
             }}
           >
             <div
@@ -199,10 +199,10 @@ const yesterdayText =
                 <Statistic
                   value={card.value}
                   suffix={card.suffix}
-                  valueStyle={{
+                  styles={{content: {
                     color: card.color,
                     fontWeight: 700,
-                    fontSize: screens.xs ? 22 : 26, // Chỉnh lại font size số đếm cho hài hòa
+                    fontSize: screens.xs ? 22 : 26,} // Chỉnh lại font size số đếm cho hài hòa
                   }}
                 />
               </div>

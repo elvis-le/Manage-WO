@@ -1,5 +1,9 @@
+import traceback
+
 import pandas as pd
 from datetime import date, timedelta
+
+from django.db.models import Sum
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
@@ -11,7 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import transaction
 
-from .models import ImportBatch, WorkOrder, DispatchAssignment
+from .models import ImportBatch, WorkOrder, DispatchAssignment, DailyProductivity
 
 
 # --- API ĐĂNG NHẬP ---
@@ -40,7 +44,9 @@ def login_view(request):
 
 # --- API QUẢN LÝ USER (CHỈ ADMIN) ---
 @api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def manage_users(request):
     # Kiểm tra quyền Admin bằng thuộc tính is_staff của Django
     if not request.user.is_staff:
@@ -74,7 +80,9 @@ def manage_users(request):
 
 
 @api_view(["PUT", "DELETE"])
-@permission_classes([IsAuthenticated])
+# @permission_classes([IsAuthenticated])
+@authentication_classes([])
+@permission_classes([AllowAny])
 def user_detail_action(request, user_id):
     if not request.user.is_staff:
         return Response({"error": "Bạn không có quyền thực hiện hành động này!"}, status=status.HTTP_403_FORBIDDEN)
@@ -114,8 +122,8 @@ def user_detail_action(request, user_id):
 
 @api_view(["GET"])
 # @permission_classes([IsAuthenticated])
-@authentication_classes([])
-@permission_classes([AllowAny])
+# @authentication_classes([])
+# @permission_classes([AllowAny])
 def work_orders(request):
     # Luôn lấy batch mới nhất vừa được import
     latest_batch = ImportBatch.objects.order_by('-imported_at').first()
@@ -149,7 +157,7 @@ def work_orders(request):
 
         pending = not completed
         overdue = (wo.overdue_days or 0) > 0
-        near_due = pending and (wo.remaining_hours or 0) > 0 and (wo.remaining_hours or 0) <= 24
+        near_due = pending and (wo.remaining_hours or 0) > 0 and (wo.remaining_hours or 0) <= 72
 
         assignment = assignment_map.get(wo.assignee)
         on_time = False
@@ -197,10 +205,10 @@ def work_orders(request):
 @api_view(["POST"])
 # @permission_classes([IsAuthenticated])
 def upload_excel(request):
-    if not request.user.is_staff:
-        return Response({"error": "Bạn không có quyền upload dữ liệu!"}, status=status.HTTP_403_FORBIDDEN)
+    # Tạm thời vô hiệu hóa việc kiểm tra quyền admin
+    # if not request.user.is_staff:
+    #     return Response({"error": "Bạn không có quyền upload dữ liệu!"}, status=status.HTTP_403_FORBIDDEN)
 
-    # Lấy dữ liệu mảng JSON được gửi từ React (đã được làm sạch và map key)
     data = request.data.get("data", [])
     file_name = request.data.get("file_name", "Data_Uploaded_From_React.xlsx")
 
@@ -220,6 +228,44 @@ def upload_excel(request):
         except:
             return None
 
+    # Hàm hỗ trợ cực kỳ quan trọng: Xử lý định dạng ngày tháng từ Excel/JSON
+    import datetime  # Đảm bảo bạn đã import thư viện này ở đầu file views.py
+
+    # Hàm hỗ trợ cực kỳ quan trọng: Xử lý định dạng ngày tháng từ Excel/JSON
+    def safe_datetime(val):
+        if val in [None, "", "NaN", "NaT", "null", "undefined"]:
+            return None
+
+        # 1. Nếu là số (Serial date của Excel)
+        if isinstance(val, (int, float)):
+            try:
+                # Excel tính ngày từ 01/01/1900
+                return datetime.datetime(1899, 12, 30) + datetime.timedelta(days=float(val))
+            except:
+                return None
+
+        # 2. Nếu là chuỗi (String do Frontend gửi lên)
+        if isinstance(val, str):
+            val_str = val.strip()
+
+            # Danh sách các định dạng thời gian có thể xảy ra
+            formats_to_try = [
+                '%Y-%m-%dT%H:%M:%S.%fZ',  # Định dạng ISO chuẩn từ Javascript (cellDates: true)
+                '%Y-%m-%dT%H:%M:%S',  # ISO không có mili-giây
+                '%d/%m/%Y %H:%M:%S',  # Kiểu Việt Nam có giờ (14/06/2026 15:30:00)
+                '%d/%m/%Y',  # Kiểu Việt Nam chỉ có ngày (14/06/2026)
+                '%Y-%m-%d %H:%M:%S',  # Kiểu SQL
+                '%Y-%m-%d'  # Kiểu SQL chỉ có ngày
+            ]
+
+            for fmt in formats_to_try:
+                try:
+                    return datetime.datetime.strptime(val_str, fmt)
+                except ValueError:
+                    continue  # Bỏ qua lỗi và thử định dạng tiếp theo
+
+        return None  # Nếu không parse được bằng bất kỳ cách nào thì trả về None
+
     try:
         with transaction.atomic():
             # Bước 1: Tạo Batch mới
@@ -231,10 +277,9 @@ def upload_excel(request):
             work_order_list = []
             count = 0
 
-            # Bước 2: Chuẩn bị danh sách dữ liệu để insert (Sử dụng key tiếng Anh đã map bên React)
+            # Bước 2: Chuẩn bị danh sách dữ liệu
             for row in data:
                 wo_code_val = row.get("wo_code")
-                # Xử lý trường hợp không có mã WO
                 if not wo_code_val or str(wo_code_val).strip() == "":
                     wo_code_val = f"TEMP-{batch.id}-{count}"
 
@@ -256,11 +301,14 @@ def upload_excel(request):
                     assignee=row.get("assignee"),
                     ft_comment=row.get("ft_comment"),
                     ft_phone=row.get("ft_phone"),
-                    created_at=row.get("created_at"),
-                    started_at=row.get("started_at"),
-                    due_at=row.get("due_at"),
-                    completed_at=row.get("completed_at"),
-                    closed_at=row.get("closed_at"),
+
+                    # CỰC KỲ QUAN TRỌNG: Áp dụng hàm safe_datetime cho các trường thời gian
+                    created_at=safe_datetime(row.get("created_at")),
+                    started_at=safe_datetime(row.get("started_at")),
+                    due_at=safe_datetime(row.get("due_at")),
+                    completed_at=safe_datetime(row.get("completed_at")),
+                    closed_at=safe_datetime(row.get("closed_at")),
+
                     remaining_hours=safe_float(row.get("remaining_hours")),
                     overdue_days=safe_int(row.get("overdue_days")),
                     penalty_amount=safe_float(row.get("penalty_amount")),
@@ -280,7 +328,162 @@ def upload_excel(request):
         })
 
     except Exception as e:
+        print("=== UPLOAD ERROR ===")
+        traceback.print_exc()  # In chi tiết lỗi ra terminal
+        print("====================")
         return Response({
             "success": False,
-            "message": str(e)
+            "message": f"Lỗi lưu DB: {str(e)}"
         }, status=500)
+
+
+@api_view(["POST"])
+# @permission_classes([IsAuthenticated])
+def upload_productivity(request):
+    data = request.data.get("data", [])
+
+    if not data:
+        return Response({"success": False, "message": "Không nhận được dữ liệu từ Frontend."}, status=400)
+
+    try:
+        # === BƯỚC 1: LẤY DANH SÁCH TỈNH (TỐI ƯU HÓA TRUY VẤN) ===
+        # Vì file thuộc KV3, số lượng mã tỉnh rất ít. Lọc theo tỉnh sẽ tránh được việc nhét
+        # hàng nghìn tên nhân viên vào câu lệnh SQL gây sập Query Planner của Postgres.
+        excel_provinces = set(str(row.get("province_code", "")).strip() for row in data if row.get("province_code"))
+
+        # Lấy danh sách phân công của các tỉnh này lên RAM (Chỉ tốn 1 câu lệnh SQL siêu nhẹ)
+        assignments = DispatchAssignment.objects.filter(province_code__in=excel_provinces)
+
+        # Tạo map tra cứu nhanh O(1) trên RAM
+        assignment_map = {}
+        for assign in assignments:
+            key = (assign.assignee, assign.province_code)
+            if key not in assignment_map:
+                assignment_map[key] = []
+            assignment_map[key].append(assign)
+
+        # === BƯỚC 2: SO KHỚP VÀ GOM DỮ LIỆU TRÊN RAM ===
+        unmatched_rows = []
+        productivity_payload = {}
+
+        for row in data:
+            ft_name = str(row.get("ft", "")).strip()
+            tt_cum_excel = str(row.get("tt_cum", "")).strip().lower()
+            ma_tinh = str(row.get("province_code", "")).strip()
+            daytime = row.get("daytime")
+            wo_done = row.get("wo_done", 0)
+
+            # LỌC BỎ DÒNG TRỐNG: Giải quyết triệt để vấn đề file bị phình lên 15,040 dòng
+            if not ft_name or not daytime:
+                continue
+
+            try:
+                wo_done = int(wo_done)
+            except (ValueError, TypeError):
+                wo_done = 0
+
+            possible_assigns = assignment_map.get((ft_name, ma_tinh), [])
+            valid_assignee = None
+
+            for assign in possible_assigns:
+                ft_of_clean = str(assign.ft_of or "").split('(')[0].strip().lower()
+                dispatch_group_clean = str(assign.dispatch_group or "").split('(')[0].strip().lower()
+
+                if ft_of_clean == tt_cum_excel or dispatch_group_clean == tt_cum_excel:
+                    valid_assignee = assign
+                    break
+
+            if valid_assignee:
+                prod_key = (valid_assignee.id, str(daytime))
+                # Ghi đè hoặc gom nhóm dữ liệu ngay trên RAM
+                productivity_payload[prod_key] = DailyProductivity(
+                    assignee=valid_assignee,
+                    daytime=daytime,
+                    wo_done=wo_done
+                )
+            else:
+                unmatched_rows.append(f"{ft_name} ({tt_cum_excel} - {ma_tinh})")
+
+        # === BƯỚC 3: ĐẨY THẲNG XUỐNG DB DÙNG NATIVE ON CONFLICT DO UPDATE ===
+        # Bỏ hoàn toàn bước gọi SQL kiểm tra trùng dữ liệu cũ (Xóa bỏ nguyên nhân gây treo API)
+        records_to_save = list(productivity_payload.values())
+        success_count = len(records_to_save)
+
+        if records_to_save:
+            with transaction.atomic():
+                # Sử dụng tính năng tối ưu mạnh mẽ của Django 4.1+ kết hợp hạ tầng Postgres của Supabase
+                DailyProductivity.objects.bulk_create(
+                    records_to_save,
+                    batch_size=1000,
+                    update_conflicts=True,  # Kích hoạt chế độ ON CONFLICT của Postgres
+                    update_fields=['wo_done'],  # Nếu trùng khóa thì cập nhật lại cột wo_done
+                    unique_fields=['assignee', 'daytime']  # Khớp với unique_together trong Model
+                )
+
+        return_message = f"Đồng bộ siêu tốc thành công {success_count} dòng năng suất thực tế!"
+        if unmatched_rows:
+            return_message += f" (Có {len(unmatched_rows)} dòng trống hoặc không khớp phân công hệ thống)"
+
+        return Response({"success": True, "message": return_message})
+
+    except Exception as e:
+        traceback.print_exc()
+        return Response({"success": False, "message": f"Lỗi xử lý tại Backend: {str(e)}"}, status=500)
+
+
+@api_view(["GET"])
+# @permission_classes([IsAuthenticated])
+def get_productivity_dashboard(request):
+    try:
+        # 1. Tìm 5 ngày gần nhất có dữ liệu trong hệ thống (Tự động linh hoạt không cần fix cứng ngày)
+        latest_dates = list(
+            DailyProductivity.objects.order_by('-daytime')
+            .values_list('daytime', flat=True)
+            .distinct()[:5]
+        )
+
+        if not latest_dates:
+            return Response({"success": True, "data": []})
+
+        # Số ngày thực tế (đề phòng hệ thống mới chỉ có 2-3 ngày dữ liệu)
+        num_days = len(latest_dates)
+
+        # 2. Gom nhóm theo nhân viên và tính tổng số WO hoàn thành trong các ngày đó
+        stats = DailyProductivity.objects.filter(daytime__in=latest_dates) \
+            .values(
+            'assignee__assignee',  # Tên NV
+            'assignee__province_code',  # Mã tỉnh
+            'assignee__ft_of',  # Tên Cụm
+            'assignee__dispatch_group'  # Tên Nhóm (phòng hờ ft_of bị trống)
+        ) \
+            .annotate(total_wo=Sum('wo_done'))
+
+        # 3. Format lại dữ liệu cho khớp 100% với props apiData của React
+        result = []
+        for row in stats:
+            total = row['total_wo'] or 0
+            # Tính trung bình và làm tròn 2 chữ số thập phân
+            avg = round(total / num_days, 2)
+
+            # Ưu tiên lấy tên Cụm, nếu không có thì lấy tên Nhóm
+            group_name = row['assignee__ft_of'] or row['assignee__dispatch_group'] or 'Không xác định'
+
+            # Làm sạch tên nhóm (Bỏ phần trong ngoặc nếu có)
+            group_name = group_name.split('(')[0].strip()
+
+            result.append({
+                "employee": row['assignee__assignee'],
+                "province": row['assignee__province_code'],
+                "primary_group": group_name,
+                "groups": [group_name],  # Component React đang expect đây là 1 mảng
+                "totalWO": total,
+                "avg": avg
+            })
+
+        # 4. Sắp xếp danh sách: Ai năng suất thấp nhất (avg nhỏ nhất) thì đứng đầu danh sách
+        result.sort(key=lambda x: x['avg'])
+
+        return Response({"success": True, "data": result})
+
+    except Exception as e:
+        return Response({"success": False, "message": str(e)}, status=500)

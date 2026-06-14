@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 
-
 class ImportBatch(models.Model):
     file_name = models.CharField(max_length=255)
     imported_at = models.DateTimeField(auto_now_add=True)
@@ -9,7 +8,6 @@ class ImportBatch(models.Model):
 
     class Meta:
         db_table = "import_batches"
-
 
 class DispatchAssignment(models.Model):
     province_code = models.CharField(
@@ -54,35 +52,35 @@ class WorkOrder(models.Model):
         related_name="work_orders"
     )
 
-    # Loại công việc
+    
     work_type = models.CharField(
         max_length=255,
         null=True,
         blank=True
     )
 
-    # Trạng thái
+    
     status = models.CharField(
         max_length=100,
         null=True,
         blank=True
     )
 
-    # Hệ thống
+    
     system_name = models.CharField(
         max_length=100,
         null=True,
         blank=True
     )
 
-    # Mức độ ưu tiên
+    
     priority_level = models.CharField(
         max_length=100,
         null=True,
         blank=True
     )
 
-    # Khu vực hành chính
+    
     province_code = models.CharField(
         max_length=50,
         null=True,
@@ -107,14 +105,14 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # Trạm
+    
     station_code = models.CharField(
         max_length=100,
         null=True,
         blank=True
     )
 
-    # Nhóm
+    
     wo_group = models.CharField(
         max_length=100,
         null=True,
@@ -127,7 +125,7 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # Nhân viên
+    
     creator = models.CharField(
         max_length=255,
         null=True,
@@ -140,7 +138,7 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # FT
+    
     ft_comment = models.TextField(
         null=True,
         blank=True
@@ -152,7 +150,7 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # Thời gian
+    
     created_at = models.DateTimeField(
         null=True,
         blank=True
@@ -178,7 +176,7 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # SLA
+    
     remaining_hours = models.FloatField(
         null=True,
         blank=True
@@ -196,7 +194,7 @@ class WorkOrder(models.Model):
         blank=True
     )
 
-    # Nội dung
+    
     work_content = models.TextField(
         null=True,
         blank=True
@@ -221,3 +219,24 @@ class WorkOrder(models.Model):
             models.Index(fields=["created_at"]),
             models.Index(fields=["due_at"]),
         ]
+
+class DailyProductivity(models.Model):
+    # ĐỒNG BỘ KHÓA NGOẠI:
+    # Thêm thuộc tính db_column='assignee_id' để Django hiểu và ghi thẳng vào cột
+    # 'assignee_id' (kiểu int8) mà bạn đang có trong bảng daily_productivity trên Supabase.
+    assignee = models.ForeignKey(
+        'DispatchAssignment',
+        on_delete=models.CASCADE,
+        related_name='productivities',
+        db_column='assignee_id' # Khớp 100% với cột assignee_id trên Supabase của bạn
+    )
+    daytime = models.DateField(verbose_name="Ngày thực hiện")
+    wo_done = models.IntegerField(default=0, verbose_name="Số lượng WO hoàn thành")
+
+    class Meta:
+        db_table = 'daily_productivity'
+        # Đảm bảo quy tắc duy nhất: 1 nhân viên chỉ có duy nhất 1 dòng điểm số cho 1 ngày
+        unique_together = ('assignee', 'daytime')
+
+    def __str__(self):
+        return f"{self.assignee.assignee} - {self.daytime}: {self.wo_done}"

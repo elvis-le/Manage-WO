@@ -225,11 +225,6 @@ function OverdueDispatchTable({
                     );
             }
 
-            console.log(
-    "Filtered WO:",
-    result.length
-);
-
             const grouped =
                 {};
 

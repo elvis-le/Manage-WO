@@ -115,7 +115,7 @@ const screens = useBreakpoint();
 
     return (
         <Card
-            bordered={false}
+            variant="borderless"
             style={{
                 marginTop: 0,
                 borderRadius: 18,
