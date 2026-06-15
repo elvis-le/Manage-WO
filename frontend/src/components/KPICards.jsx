@@ -82,6 +82,15 @@ const percent = value =>
       ).toFixed(1)
     : "0.0";
 
+const percentPending = value =>
+  pendingWO > 0
+    ? (
+        value *
+        100 /
+        pendingWO
+      ).toFixed(1)
+    : "0.0";
+
 const yesterday = new Date();
 
 yesterday.setDate(
@@ -112,7 +121,7 @@ const yesterdayText =
   {
     title: "WO Quá Hạn",
     value: overdueWO,
-    percent: percent(overdueWO),
+    percent: percentPending(overdueWO),
     color: "#ff4d4f",
     icon: <WarningOutlined />,
   },
@@ -120,7 +129,7 @@ const yesterdayText =
   {
     title: "Sắp Quá Hạn",
     value: nearDueWO,
-    percent: percent(nearDueWO),
+    percent: percentPending(nearDueWO),
     color: "#faad14",
     icon: <ClockCircleOutlined />,
   },
@@ -144,7 +153,7 @@ const yesterdayText =
   {
   title: "Quá Hạn ≤ 5 Ngày",
   value: overdueUnder3WO,
-  percent: percent(overdueUnder3WO),
+  percent: percentPending(overdueUnder3WO),
   color: "#fa8c16",
   icon: <WarningOutlined />,
 },
@@ -152,7 +161,7 @@ const yesterdayText =
 {
   title: "Quá Hạn > 5 Ngày",
   value: overdueOver3WO,
-  percent: percent(overdueOver3WO),
+  percent: percentPending(overdueOver3WO),
   color: "#cf1322",
   icon: <WarningOutlined />,
 },

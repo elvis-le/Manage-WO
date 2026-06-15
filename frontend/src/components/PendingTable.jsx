@@ -46,7 +46,7 @@ function PendingTable({ rows }) {
     const [woGroupFilter, setWoGroupFilter] = useState("ALL");
     const [searchText, setSearchText] = useState("");
 
-    const [viewMode, setViewMode] = useState("table");
+    const [viewMode, setViewMode] = useState("chart");
     const [chartMetric, setChartMetric] = useState("overdue");
 
     const coordGroups = useMemo(
@@ -205,7 +205,7 @@ function PendingTable({ rows }) {
             </div>
 
             {viewMode === "table" ? (
-                <ConfigProvider theme={{ components: { Table: { headerBg: "#e1f4fa", colorBgContainer: "#e1f4fa", rowHoverBg: "#e1f4fa", borderColor: "#18bdf0" } } }}>
+                <ConfigProvider theme={{ components: { Table: { headerBg: "#e1f4fa", colorBgContainer: "#e1f4fa", rowHoverBg: "#e1f4fa", borderColor: "#18bdf0"} } }}>
                     <Table
                         rowKey="key" columns={columns} dataSource={tableData} bordered
                         size={screens.xs ? "small" : "middle"}
@@ -214,7 +214,7 @@ function PendingTable({ rows }) {
                     />
                 </ConfigProvider>
             ) : (
-                <div style={{ background: "#fff", padding: "16px", borderRadius: "12px", border: "1px solid #18bdf0" }}>
+                <div style={{ background: "#e1f4fa", padding: "16px", borderRadius: "12px", border: "1px solid #18bdf0" }}>
                     <div style={{ marginBottom: 16, textAlign: "center" }}>
                         <Radio.Group value={chartMetric} onChange={e => setChartMetric(e.target.value)} buttonStyle="solid">
                             <Radio.Button value="overdue">WO Quá hạn</Radio.Button>

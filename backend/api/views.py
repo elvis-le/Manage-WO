@@ -466,7 +466,7 @@ def get_productivity_dashboard(request):
             avg = round(total / num_days, 2)
 
             # Ưu tiên lấy tên Cụm, nếu không có thì lấy tên Nhóm
-            group_name = row['assignee__ft_of'] or row['assignee__dispatch_group'] or 'Không xác định'
+            group_name = row['assignee__dispatch_group'] or row['assignee__ft_of'] or 'Không xác định'
 
             # Làm sạch tên nhóm (Bỏ phần trong ngoặc nếu có)
             group_name = group_name.split('(')[0].strip()

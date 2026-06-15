@@ -25,38 +25,36 @@ const { Title, Text } = Typography;
 function Dashboard() {
     const navigate = useNavigate();
 
-    // Nhận dữ liệu tập trung được load tự động khi vừa vào trang web
+    
     const { user, logout } = useContext(AuthContext);
     const { rows, productivityData, loadingData } = useContext(DataContext);
 
-    console.log("productivityData: " + productivityData);
-
-    // Các trạng thái bộ lọc tổng
+    
     const [year, setYear] = useState("ALL");
     const [month, setMonth] = useState("ALL");
     const [province, setProvince] = useState("ALL");
     const [woGroup, setWoGroup] = useState("ALL");
 
-    // Hàm bóc tách chuỗi ngày tháng đa định dạng, chống lệch múi giờ và tương thích mọi kiểu chuỗi (ISO, DD/MM/YYYY, YYYY-MM-DD)
+    
     const parseDateHelper = (createdAt) => {
         if (!createdAt) return { yearStr: null, monthStr: null };
         const str = String(createdAt).trim();
 
-        // Trích xuất riêng phần ngày, loại bỏ phần giờ hoặc ký tự 'T' nếu là chuỗi ISO
+        
         const datePart = str.split('T')[0].split(' ')[0];
 
-        // Xác định dấu phân cách là gạch chéo '/' hoặc gạch ngang '-'
+        
         const separator = datePart.includes('/') ? '/' : (datePart.includes('-') ? '-' : null);
 
         if (separator) {
             const parts = datePart.split(separator);
             if (parts.length >= 3) {
-                // Tìm thành phần có 4 chữ số để làm Năm (ví dụ: 2026)
+                
                 let y = parts.find(p => p.length === 4);
-                // Đối với các định dạng phổ biến (YYYY-MM-DD hoặc DD/MM/YYYY), Tháng luôn nằm ở vị trí giữa (index 1)
+                
                 let m = parts[1];
 
-                // Dự phòng nếu năm chỉ có 2 chữ số (YY)
+                
                 if (!y) {
                     y = parts[2].length === 2 ? `20${parts[2]}` : parts[0];
                 }
@@ -70,7 +68,7 @@ function Dashboard() {
             }
         }
 
-        // Cơ chế dự phòng cuối cùng bằng đối tượng Date nguyên bản của JavaScript
+        
         const dateObj = new Date(createdAt);
         if (!isNaN(dateObj.getTime())) {
             return {
@@ -82,31 +80,31 @@ function Dashboard() {
         return { yearStr: null, monthStr: null };
     };
 
-    // Tự động xây dựng danh sách Năm từ dữ liệu rows
+    
     const listYears = useMemo(() => {
         const years = rows.map(x => parseDateHelper(x.created_time).yearStr).filter(Boolean);
         return ["ALL", ...new Set(years)].sort((a, b) => b - a);
     }, [rows]);
 
-    // Tự động xây dựng danh sách Tháng từ dữ liệu rows
+    
     const listMonths = useMemo(() => {
         const months = rows.map(x => parseDateHelper(x.created_time).monthStr).filter(Boolean);
         return ["ALL", ...new Set(months)].sort((a, b) => a - b);
     }, [rows]);
 
-    // Tự động xây dựng danh sách Tỉnh/Thành từ dữ liệu rows
+    
     const listProvinces = useMemo(() => {
         const provinces = rows.map(x => x.province).filter(Boolean);
         return ["ALL", ...new Set(provinces)].sort();
     }, [rows]);
 
-    // Tự động xây dựng danh sách Nhóm Work Order từ dữ liệu rows
+    
     const listWoGroups = useMemo(() => {
         const groups = rows.map(x => x.wo_group).filter(Boolean);
         return ["ALL", ...new Set(groups)].sort();
     }, [rows]);
 
-    // Thực hiện tính toán lọc dữ liệu đồng bộ
+    
     const filteredRows = useMemo(() => {
         return rows.filter(x => {
             const { yearStr, monthStr } = parseDateHelper(x.created_time);
@@ -132,7 +130,7 @@ function Dashboard() {
                 flexDirection: "column",
                 justifyContent: "center",
                 alignItems: "center",
-                backgroundColor: "#ebf8fc", // Khớp với màu nền của trang
+                backgroundColor: "#ebf8fc", 
                 zIndex: 9999
             }}>
                 <Spin size="large" description="Đang tải dữ liệu hệ thống..." />
@@ -283,12 +281,12 @@ function Dashboard() {
                 </div>
 
                 <Row gutter={[20, 20]} style={{ marginTop: 20 }}>
-                    <Col xs={24} lg={12}>
-                        <UnderperformingHorizontalBarChart apiData={productivityData} />
+                    <Col xs={24} lg={24}>
+                        <UnderperformingHorizontalBarChart rows={filteredRows} />
                     </Col>
-                    <Col xs={24} lg={12}>
-                        <OverdueDispatchTable rows={filteredRows} />
-                    </Col>
+                    {/*<Col xs={24} lg={12}>*/}
+                    {/*    <OverdueDispatchTable rows={filteredRows} />*/}
+                    {/*</Col>*/}
                 </Row>
 
                 <div style={{ marginTop: 20 }}>
